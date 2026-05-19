@@ -2,515 +2,149 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Nexor Premium</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
 :root{
-  --purple:#9b30ff;
-  --pink:#ff2cf7;
-  --cyan:#00ffe7;
-  --dark:#04000d;
-  --card-bg:rgba(12,0,28,0.82);
-  --border:rgba(155,48,255,0.35);
+  --purple:#9b30ff;--pink:#ff2cf7;--cyan:#00ffe7;--green:#39ff8f;
+  --dark:#03000b;--card-bg:rgba(10,0,22,0.88);--border:rgba(155,48,255,0.3);
 }
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);color:white;font-family:'Rajdhani',sans-serif;}
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
+.scanlines{position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:4;}
 
-body{
-  background:var(--dark);
-  overflow:hidden;
-  color:white;
-  font-family:'Rajdhani',sans-serif;
-}
+.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:10;}
 
-/* ─── CANVAS BACKGROUND ─── */
-#bgCanvas{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  z-index:0;
-}
+/* LOADING */
+#loading{background:transparent;}
+.load-wrap{display:flex;flex-direction:column;align-items:center;}
+.hex-container{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.hex-ring{position:absolute;width:180px;height:180px;animation:hexSpin 4s linear infinite;}
+.hex-ring svg{width:100%;height:100%;filter:drop-shadow(0 0 14px var(--purple)) drop-shadow(0 0 28px var(--pink));}
+.hex-ring2{position:absolute;width:128px;height:128px;animation:hexSpin 2.4s linear infinite reverse;}
+.hex-ring2 svg{width:100%;height:100%;filter:drop-shadow(0 0 10px var(--cyan));}
+.hex-ring3{position:absolute;width:80px;height:80px;animation:hexSpin 1.8s linear infinite;}
+.hex-ring3 svg{width:100%;height:100%;filter:drop-shadow(0 0 8px var(--pink));}
+@keyframes hexSpin{to{transform:rotate(360deg);}}
+.load-logo{font-family:'Orbitron',sans-serif;font-size:30px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:absolute;animation:glitch 4s infinite;}
+@keyframes glitch{0%,90%,100%{clip-path:none;transform:none;}91%{clip-path:inset(15% 0 65% 0);transform:translateX(-5px);}92%{clip-path:inset(55% 0 15% 0);transform:translateX(5px);}93%{clip-path:none;}}
+.load-bars{display:flex;gap:5px;margin-top:28px;}
+.load-bar{width:5px;height:36px;background:linear-gradient(180deg,var(--pink),var(--purple));border-radius:3px;box-shadow:0 0 10px var(--purple);animation:barPulse 1s ease-in-out infinite;}
+.load-bar:nth-child(2){animation-delay:.1s;background:linear-gradient(180deg,var(--purple),var(--cyan));}
+.load-bar:nth-child(3){animation-delay:.2s;}
+.load-bar:nth-child(4){animation-delay:.3s;background:linear-gradient(180deg,var(--cyan),var(--purple));}
+.load-bar:nth-child(5){animation-delay:.4s;}
+.load-bar:nth-child(6){animation-delay:.5s;background:linear-gradient(180deg,var(--pink),var(--cyan));}
+.load-bar:nth-child(7){animation-delay:.6s;}
+.load-bar:nth-child(8){animation-delay:.7s;}
+.load-bar:nth-child(9){animation-delay:.8s;background:linear-gradient(180deg,var(--purple),var(--pink));}
+@keyframes barPulse{0%,100%{transform:scaleY(.45);opacity:.35;}50%{transform:scaleY(2.1);opacity:1;}}
+.load-status{margin-top:20px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);opacity:.7;min-height:16px;text-align:center;}
+.load-percent{font-family:'Orbitron',sans-serif;font-size:15px;color:var(--purple);letter-spacing:2px;margin-top:4px;}
+.load-progress{width:280px;height:4px;background:rgba(155,48,255,.1);border-radius:999px;overflow:hidden;margin-top:8px;}
+.load-progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink),var(--cyan));border-radius:999px;box-shadow:0 0 12px var(--purple);width:0%;transition:width .25s ease;}
 
-.screen{
-  position:absolute;
-  width:100%;height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:10;
-}
+/* corner decorations */
+.corner{position:fixed;width:55px;height:55px;z-index:20;}
+.corner svg{width:100%;height:100%;}
+.corner.tl{top:10px;left:10px;}.corner.tr{top:10px;right:10px;transform:scaleX(-1);}
+.corner.bl{bottom:10px;left:10px;transform:scaleY(-1);}.corner.br{bottom:10px;right:10px;transform:scale(-1);}
 
-/* ─── LOADING SCREEN ─── */
-#loading{
-  background:transparent;
-}
-
-.load-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:0;
-}
-
-/* Hexagon ring */
-.hex-container{
-  position:relative;
-  width:160px;height:160px;
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:10px;
-}
-
-.hex-ring{
-  position:absolute;
-  width:160px;height:160px;
-  animation:hexSpin 3s linear infinite;
-}
-
-.hex-ring svg{
-  width:100%;height:100%;
-  filter:drop-shadow(0 0 12px var(--purple)) drop-shadow(0 0 24px var(--pink));
-}
-
-@keyframes hexSpin{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
-}
-
-.hex-ring2{
-  position:absolute;
-  width:120px;height:120px;
-  animation:hexSpin 2s linear infinite reverse;
-}
-
-.hex-ring2 svg{
-  width:100%;height:100%;
-  filter:drop-shadow(0 0 8px var(--cyan));
-}
-
-.load-logo{
-  font-family:'Orbitron',sans-serif;
-  font-size:38px;
-  font-weight:900;
-  letter-spacing:6px;
-  background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  position:absolute;
-  text-shadow:none;
-  animation:glitch 3s infinite;
-}
-
-@keyframes glitch{
-  0%,95%,100%{clip-path:none;transform:none;}
-  96%{clip-path:inset(20% 0 60% 0);transform:translateX(-4px);}
-  97%{clip-path:inset(60% 0 10% 0);transform:translateX(4px);}
-  98%{clip-path:inset(40% 0 30% 0);transform:translateX(-2px);}
-  99%{clip-path:none;transform:none;}
-}
-
-.load-bars{
-  display:flex;gap:4px;
-  margin-top:28px;
-}
-
-.load-bar{
-  width:5px;height:35px;
-  background:linear-gradient(180deg,var(--pink),var(--purple));
-  border-radius:3px;
-  box-shadow:0 0 10px var(--purple);
-  animation:barPulse 1.2s ease-in-out infinite;
-}
-
-.load-bar:nth-child(2){animation-delay:.15s;}
-.load-bar:nth-child(3){animation-delay:.30s;}
-.load-bar:nth-child(4){animation-delay:.45s;}
-.load-bar:nth-child(5){animation-delay:.60s;}
-.load-bar:nth-child(6){animation-delay:.75s;}
-.load-bar:nth-child(7){animation-delay:.90s;}
-
-@keyframes barPulse{
-  0%,100%{transform:scaleY(1);opacity:.5;}
-  50%{transform:scaleY(2);opacity:1;}
-}
-
-.load-text{
-  margin-top:18px;
-  font-family:'Orbitron',sans-serif;
-  font-size:11px;
-  letter-spacing:4px;
-  color:var(--cyan);
-  opacity:.8;
-}
-
-.load-percent{
-  margin-top:6px;
-  font-family:'Orbitron',sans-serif;
-  font-size:13px;
-  color:var(--purple);
-  letter-spacing:2px;
-}
-
-.load-progress{
-  margin-top:10px;
-  width:260px;height:3px;
-  background:rgba(155,48,255,0.2);
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.load-progress-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--purple),var(--pink),var(--cyan));
-  border-radius:999px;
-  box-shadow:0 0 12px var(--purple);
-  width:0%;
-  transition:width .3s ease;
-}
-
-/* scan line overlay */
-.scanlines{
-  position:fixed;
-  top:0;left:0;width:100%;height:100%;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);
-  pointer-events:none;
-  z-index:5;
-  animation:scanMove 8s linear infinite;
-}
-
-@keyframes scanMove{
-  0%{background-position:0 0;}
-  100%{background-position:0 100%;}
-}
-
-/* ─── LOGIN ─── */
+/* LOGIN */
 #login{display:none;}
-
-.glass{
-  width:92%;max-width:420px;
-  background:var(--card-bg);
-  backdrop-filter:blur(24px);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:30px 26px;
-  box-shadow:
-    0 0 60px rgba(155,48,255,.2),
-    0 0 120px rgba(255,44,247,.07),
-    inset 0 0 40px rgba(255,255,255,.015);
-  position:relative;
-  overflow:hidden;
-}
-
-.glass::before{
-  content:'';
-  position:absolute;top:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(90deg,transparent,var(--purple),var(--pink),transparent);
-}
-
-.glass::after{
-  content:'';
-  position:absolute;bottom:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-}
-
-.title{
-  font-family:'Orbitron',sans-serif;
-  font-size:26px;font-weight:900;
-  letter-spacing:2px;
-  background:linear-gradient(90deg,#fff,var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:4px;
-}
-
-.subtitle{
-  font-size:12px;opacity:.5;letter-spacing:1px;
-  margin-bottom:24px;color:var(--cyan);
-}
-
-.inputBox{
-  background:rgba(0,0,0,.5);
-  border:1px solid rgba(155,48,255,.4);
-  height:54px;border-radius:14px;
-  display:flex;align-items:center;padding:0 16px;
-  margin-bottom:16px;
-  transition:border-color .3s;
-  position:relative;
-}
-
-.inputBox:focus-within{
-  border-color:var(--purple);
-  box-shadow:0 0 20px rgba(155,48,255,.25);
-}
-
-.inputBox input{
-  background:none;border:none;outline:none;
-  color:white;width:100%;
-  font-size:14px;font-family:'Rajdhani',sans-serif;font-weight:500;
-  letter-spacing:2px;
-}
-
-.inputBox input::placeholder{color:rgba(255,255,255,.3);letter-spacing:2px;}
-
-.btn{
-  height:52px;border:none;width:100%;
-  border-radius:14px;font-size:15px;font-weight:700;
-  font-family:'Orbitron',sans-serif;letter-spacing:2px;
-  background:linear-gradient(90deg,#6a00ff,var(--pink));
-  color:white;
-  box-shadow:0 0 30px rgba(162,0,255,.4);
-  cursor:pointer;
-  position:relative;overflow:hidden;
-  transition:transform .15s,box-shadow .15s;
-}
-
-.btn::before{
-  content:'';position:absolute;top:-50%;left:-60%;
-  width:40%;height:200%;
-  background:rgba(255,255,255,.15);
-  transform:skewX(-20deg);
-  animation:btnShine 3s infinite;
-}
-
-@keyframes btnShine{
-  0%{left:-60%;}100%{left:140%;}
-}
-
+.glass{width:92%;max-width:420px;background:var(--card-bg);backdrop-filter:blur(28px);border:1px solid var(--border);border-radius:28px;padding:32px 28px;box-shadow:0 0 80px rgba(155,48,255,.16),inset 0 0 40px rgba(255,255,255,.01);position:relative;overflow:hidden;}
+.glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple),var(--pink),transparent);}
+.glass::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.gc{position:absolute;width:18px;height:18px;}
+.gc::before,.gc::after{content:'';position:absolute;background:var(--cyan);}
+.gc::before{width:100%;height:1.5px;top:0;left:0;}
+.gc::after{width:1.5px;height:100%;top:0;left:0;}
+.gc.tr{top:0;right:0;transform:rotate(90deg);}.gc.bl{bottom:0;left:0;transform:rotate(270deg);}.gc.br{bottom:0;right:0;transform:rotate(180deg);}
+.login-logo{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px;}
+.login-sub{font-size:11px;letter-spacing:3px;color:rgba(0,255,231,.45);text-align:center;margin-bottom:28px;font-family:'Share Tech Mono',monospace;}
+.inputBox{background:rgba(0,0,0,.55);border:1px solid rgba(155,48,255,.35);height:54px;border-radius:14px;display:flex;align-items:center;padding:0 18px;margin-bottom:14px;transition:border-color .3s,box-shadow .3s;}
+.inputBox:focus-within{border-color:var(--purple);box-shadow:0 0 20px rgba(155,48,255,.22);}
+.inputBox input{background:none;border:none;outline:none;color:white;width:100%;font-size:14px;font-family:'Share Tech Mono',monospace;letter-spacing:3px;}
+.inputBox input::placeholder{color:rgba(255,255,255,.25);font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
+.btn{height:52px;border:none;width:100%;border-radius:14px;font-size:13px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:3px;background:linear-gradient(90deg,#6a00ff,var(--pink));color:white;box-shadow:0 0 28px rgba(162,0,255,.32);cursor:pointer;position:relative;overflow:hidden;transition:transform .15s;}
+.btn::before{content:'';position:absolute;top:-50%;left:-60%;width:35%;height:200%;background:rgba(255,255,255,.12);transform:skewX(-20deg);animation:shine 4s infinite;}
+@keyframes shine{0%{left:-60%;}100%{left:150%;}}
 .btn:active{transform:scale(.97);}
 
-/* ─── PANEL ─── */
-#panel{display:none;overflow-y:auto;}
-
-.panel-inner{
-  width:92%;max-width:440px;
-  display:flex;flex-direction:column;
-  gap:12px;
-  padding:16px 0;
-}
-
-.panel-header{
-  background:var(--card-bg);
-  backdrop-filter:blur(24px);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:20px 22px;
-  position:relative;overflow:hidden;
-}
-
-.panel-header::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--purple),var(--pink),transparent);
-}
-
-.panelTitle{
-  font-family:'Orbitron',sans-serif;
-  font-size:24px;font-weight:900;letter-spacing:2px;
-  background:linear-gradient(90deg,#fff,var(--purple),var(--pink));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-
-.badge{
-  display:inline-block;
-  padding:4px 12px;border-radius:999px;
-  background:rgba(155,48,255,.15);
-  border:1px solid rgba(155,48,255,.5);
-  font-size:11px;color:var(--purple);
-  letter-spacing:2px;font-family:'Orbitron',sans-serif;
-  margin-top:6px;
-}
-
-.card{
-  background:var(--card-bg);
-  border:1px solid var(--border);
-  padding:18px 20px;
-  border-radius:20px;
-  position:relative;overflow:hidden;
-}
-
-.card-title{
-  font-family:'Orbitron',sans-serif;
-  font-size:11px;letter-spacing:3px;
-  color:var(--cyan);opacity:.7;
-  margin-bottom:14px;
-}
-
-.row{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:12px;
-}
-
-.label{font-size:15px;font-weight:600;letter-spacing:.5px;}
-
-.switch-wrap{position:relative;}
-
-.switch{
-  width:52px;height:28px;
-  background:rgba(48,0,80,.8);
-  border:1px solid rgba(155,48,255,.3);
-  border-radius:999px;
-  position:relative;cursor:pointer;
-  transition:background .3s;
-}
-
-.switch.on{background:rgba(155,48,255,.3);border-color:var(--purple);}
-
-.switch::after{
-  content:'';position:absolute;
-  width:20px;height:20px;border-radius:50%;
-  background:#6b6b8f;
-  top:3px;left:4px;
-  transition:transform .3s,background .3s,box-shadow .3s;
-}
-
-.switch.on::after{
-  transform:translateX(24px);
-  background:var(--purple);
-  box-shadow:0 0 14px var(--purple);
-}
-
-.slider-row{margin-bottom:4px;}
-
-.slider{
-  width:100%;appearance:none;
-  height:6px;border-radius:999px;
-  background:linear-gradient(90deg,var(--purple) var(--pct,75%),rgba(255,255,255,.1) var(--pct,75%));
-  outline:none;cursor:pointer;
-  margin-top:10px;
-}
-
-.slider::-webkit-slider-thumb{
-  appearance:none;width:22px;height:22px;
-  border-radius:50%;
-  background:white;
-  box-shadow:0 0 16px var(--purple),0 0 6px var(--pink);
-}
-
+/* PANEL */
+#panel{display:none;align-items:center;justify-content:flex-start;overflow-y:auto;padding:14px 0 24px;}
+#panel::-webkit-scrollbar{width:0;}
+.panel-inner{width:92%;max-width:450px;display:flex;flex-direction:column;gap:11px;}
+.panel-header{background:linear-gradient(135deg,rgba(15,0,35,.92),rgba(8,0,20,.92));border:1px solid rgba(155,48,255,.4);border-radius:22px;padding:18px 20px;position:relative;overflow:hidden;}
+.panel-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple),var(--pink),var(--cyan),transparent);}
+.ph-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.panelTitle{font-family:'Orbitron',sans-serif;font-size:21px;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,#fff,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.online-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-family:'Share Tech Mono',monospace;}
+.dot-blink{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink .8s infinite alternate;}
+@keyframes blink{to{opacity:.2;}}
+.badge{display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(155,48,255,.1);border:1px solid rgba(155,48,255,.35);font-size:10px;color:var(--purple);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-top:6px;}
+.card{background:linear-gradient(135deg,rgba(12,0,26,.92),rgba(6,0,16,.92));border:1px solid var(--border);padding:16px 18px;border-radius:18px;position:relative;overflow:hidden;}
+.card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(155,48,255,.05),transparent 70%);pointer-events:none;}
+.card-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:4px;color:var(--cyan);opacity:.55;margin-bottom:13px;}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;}
+.row:last-of-type{margin-bottom:0;}
+.label{font-size:15px;font-weight:600;letter-spacing:.4px;}
+.switch{width:52px;height:27px;background:rgba(40,0,60,.8);border:1px solid rgba(155,48,255,.28);border-radius:999px;position:relative;cursor:pointer;transition:all .3s;}
+.switch.on{background:rgba(100,0,160,.38);border-color:var(--purple);box-shadow:0 0 10px rgba(155,48,255,.28);}
+.switch::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#4a3a60;top:3px;left:4px;transition:all .3s;}
+.switch.on::after{transform:translateX(25px);background:var(--purple);box-shadow:0 0 12px var(--purple);}
 .val-row{display:flex;justify-content:space-between;align-items:center;}
-.value{font-size:14px;color:var(--purple);font-family:'Orbitron',sans-serif;font-weight:700;}
-
-.monitor{
-  margin-top:4px;
-  height:110px;overflow-y:auto;
-  background:rgba(0,0,0,.7);
-  border-radius:14px;padding:12px;
-  font-size:12px;color:#6dffb3;
-  border:1px solid rgba(0,255,200,.12);
-  font-family:'Rajdhani',sans-serif;letter-spacing:.5px;
-  line-height:1.6;
-}
-
-.monitor::-webkit-scrollbar{width:4px;}
-.monitor::-webkit-scrollbar-track{background:transparent;}
+.value{font-size:15px;color:var(--purple);font-family:'Orbitron',sans-serif;font-weight:700;}
+.slider{width:100%;appearance:none;height:5px;border-radius:999px;background:linear-gradient(90deg,var(--purple) var(--pct,75%),rgba(255,255,255,.07) var(--pct,75%));outline:none;cursor:pointer;margin-top:11px;}
+.slider::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 0 14px var(--purple),0 0 5px var(--pink);cursor:pointer;}
+.monitor{margin-top:11px;height:132px;overflow-y:auto;background:rgba(0,0,0,.8);border-radius:13px;padding:13px;font-size:12px;color:var(--green);border:1px solid rgba(0,255,180,.08);font-family:'Share Tech Mono',monospace;line-height:1.75;position:relative;}
+.monitor::-webkit-scrollbar{width:3px;}
 .monitor::-webkit-scrollbar-thumb{background:var(--purple);border-radius:999px;}
+.injectBtn{margin-top:4px;}
+.ff-btn{background:linear-gradient(90deg,#d62000,#ff004c);box-shadow:0 0 28px rgba(255,0,60,.28);margin-top:10px;}
 
-.injectBtn{margin-top:2px;}
-
-.ff{
-  background:linear-gradient(90deg,#ff3a00,#ff0062);
-  box-shadow:0 0 30px rgba(255,0,80,.35);
-}
-
-/* ─── SENSI RECOMMENDER ─── */
-.sensi-card{
-  background:var(--card-bg);
-  border:1px solid rgba(0,255,231,.25);
-  padding:18px 20px;
-  border-radius:20px;
-}
-
+/* SENSI */
+.sensi-card{background:linear-gradient(135deg,rgba(0,8,20,.92),rgba(0,4,14,.92));border:1px solid rgba(0,255,231,.18);padding:16px 18px;border-radius:18px;position:relative;overflow:hidden;}
+.sensi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
 .sensi-card .card-title{color:var(--cyan);}
-
-.device-input-wrap{
-  background:rgba(0,0,0,.5);
-  border:1px solid rgba(0,255,231,.3);
-  border-radius:12px;
-  display:flex;align-items:center;
-  padding:0 14px;height:48px;
-  margin-bottom:10px;
-  transition:border-color .3s;
-}
-
-.device-input-wrap:focus-within{
-  border-color:var(--cyan);
-  box-shadow:0 0 16px rgba(0,255,231,.2);
-}
-
-.device-input-wrap input{
-  background:none;border:none;outline:none;
-  color:white;width:100%;
-  font-size:14px;font-family:'Rajdhani',sans-serif;
-  letter-spacing:1px;
-}
-
-.device-input-wrap input::placeholder{color:rgba(255,255,255,.3);}
-
-.suggestions{
-  display:none;
-  background:rgba(4,0,20,.95);
-  border:1px solid rgba(0,255,231,.25);
-  border-radius:12px;
-  overflow:hidden;
-  margin-bottom:10px;
-}
-
-.sug-item{
-  padding:10px 14px;
-  font-size:14px;cursor:pointer;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  transition:background .2s;
-  display:flex;align-items:center;gap:8px;
-}
-
+.device-input-wrap{background:rgba(0,0,0,.6);border:1px solid rgba(0,255,231,.22);border-radius:11px;display:flex;align-items:center;padding:0 13px;height:46px;margin-bottom:9px;transition:all .3s;}
+.device-input-wrap:focus-within{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,231,.16);}
+.device-input-wrap input{background:none;border:none;outline:none;color:white;width:100%;font-size:14px;font-family:'Rajdhani',sans-serif;font-weight:500;}
+.device-input-wrap input::placeholder{color:rgba(255,255,255,.26);}
+.suggestions{display:none;background:rgba(2,0,14,.97);border:1px solid rgba(0,255,231,.18);border-radius:11px;overflow:hidden;margin-bottom:9px;}
+.sug-item{padding:9px 13px;font-size:14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s;display:flex;align-items:center;gap:9px;}
 .sug-item:last-child{border-bottom:none;}
-.sug-item:hover{background:rgba(0,255,231,.08);}
-.sug-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);}
+.sug-item:hover{background:rgba(0,255,231,.06);}
+.sug-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);flex-shrink:0;}
+.sug-label{flex:1;}
+.sug-tier{font-size:10px;color:var(--purple);font-family:'Share Tech Mono',monospace;}
+.sensi-result{display:none;background:rgba(0,255,231,.025);border:1px solid rgba(0,255,231,.12);border-radius:13px;padding:14px;}
+.sensi-device-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:12px;}
+.sensi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.sensi-item{background:rgba(0,0,0,.5);border:1px solid rgba(155,48,255,.16);border-radius:9px;padding:9px 11px;}
+.sensi-item-label{font-size:9px;color:rgba(255,255,255,.38);letter-spacing:.5px;margin-bottom:4px;}
+.sensi-item-val{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--purple);}
+.sensi-tip{margin-top:10px;font-size:12px;color:rgba(255,255,255,.38);line-height:1.6;border-top:1px solid rgba(255,255,255,.04);padding-top:9px;}
 
-.sensi-result{
-  display:none;
-  background:rgba(0,255,231,.04);
-  border:1px solid rgba(0,255,231,.2);
-  border-radius:14px;
-  padding:14px 16px;
-}
-
-.sensi-device-name{
-  font-family:'Orbitron',sans-serif;
-  font-size:13px;color:var(--cyan);
-  letter-spacing:1px;margin-bottom:12px;
-  opacity:.8;
-}
-
-.sensi-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-
-.sensi-item{
-  background:rgba(0,0,0,.4);
-  border:1px solid rgba(155,48,255,.2);
-  border-radius:10px;
-  padding:10px 12px;
-}
-
-.sensi-item-label{
-  font-size:11px;color:rgba(255,255,255,.45);
-  letter-spacing:.5px;margin-bottom:4px;
-}
-
-.sensi-item-val{
-  font-family:'Orbitron',sans-serif;
-  font-size:17px;font-weight:700;
-  color:var(--purple);
-}
-
-.sensi-tip{
-  margin-top:10px;
-  font-size:12px;color:rgba(255,255,255,.45);
-  letter-spacing:.3px;line-height:1.5;
-}
+/* FF FULLSCREEN */
+#ffLoader{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;}
+.ff-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 30% 40%,rgba(255,40,0,.14),transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(255,100,0,.09),transparent 60%),#000;}
+.ff-grid{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(255,60,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,0,.05) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 3s linear infinite;}
+@keyframes gridMove{to{background-position:0 40px;}}
+.ff-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+.ff-title{font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,#ff6a00,#ff0040,#ff6a00);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:ffGlow 2s ease-in-out infinite alternate,ffShift 3s linear infinite;margin-bottom:6px;}
+@keyframes ffGlow{from{filter:drop-shadow(0 0 18px rgba(255,80,0,.8));}to{filter:drop-shadow(0 0 36px rgba(255,0,60,.9));}}
+@keyframes ffShift{to{background-position:200%;}}
+.ff-sub{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:rgba(255,120,0,.65);margin-bottom:38px;}
+.ff-ring-wrap{position:relative;width:136px;height:136px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
+.ff-ring-outer{position:absolute;width:136px;height:136px;border:2px solid rgba(255,60,0,.28);border-top-color:#ff4400;border-radius:50%;animation:hexSpin 1.1s linear infinite;box-shadow:0 0 18px rgba(255,68,0,.4);}
+.ff-ring-mid{position:absolute;width:96px;height:96px;border:2px solid rgba(255,0,60,.2);border-bottom-color:#ff0040;border-radius:50%;animation:hexSpin 2s linear infinite reverse;}
+.ff-pct-big{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;color:#ff6600;}
+.ff-progress-wrap{width:300px;height:5px;background:rgba(255,255,255,.05);border-radius:999px;overflow:hidden;margin-bottom:13px;}
+.ff-progress-fill{height:100%;background:linear-gradient(90deg,#ff4400,#ff0060);border-radius:999px;box-shadow:0 0 12px #ff4400;width:0%;transition:width .28s ease;}
+.ff-status{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,120,0,.55);letter-spacing:2px;min-height:15px;}
 </style>
 </head>
 <body>
@@ -518,390 +152,341 @@ body{
 <canvas id="bgCanvas"></canvas>
 <div class="scanlines"></div>
 
+<div class="corner tl"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/><path d="M0 35 L0 0 L35 0" stroke="#00ffe7" stroke-width=".8" opacity=".4"/></svg></div>
+<div class="corner tr"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
+<div class="corner bl"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
+<div class="corner br"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
+
 <!-- LOADING -->
 <div id="loading" class="screen">
   <div class="load-wrap">
     <div class="hex-container">
-      <div class="hex-ring">
-        <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="80,8 148,44 148,116 80,152 12,116 12,44" stroke="url(#g1)" stroke-width="2.5" fill="none" stroke-dasharray="8 4"/>
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="160" y2="160">
-              <stop offset="0%" stop-color="#9b30ff"/>
-              <stop offset="50%" stop-color="#ff2cf7"/>
-              <stop offset="100%" stop-color="#00ffe7"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <div class="hex-ring2">
-        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="60,4 112,32 112,88 60,116 8,88 8,32" stroke="#00ffe7" stroke-width="1.5" fill="none" stroke-dasharray="5 8"/>
-        </svg>
-      </div>
+      <div class="hex-ring"><svg viewBox="0 0 180 180" fill="none"><polygon points="90,6 168,48 168,132 90,174 12,132 12,48" stroke="url(#lg1)" stroke-width="2" fill="none" stroke-dasharray="10 5"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="180" y2="180"><stop offset="0%" stop-color="#9b30ff"/><stop offset="50%" stop-color="#ff2cf7"/><stop offset="100%" stop-color="#00ffe7"/></linearGradient></defs></svg></div>
+      <div class="hex-ring2"><svg viewBox="0 0 128 128" fill="none"><polygon points="64,4 120,34 120,94 64,124 8,94 8,34" stroke="#00ffe7" stroke-width="1.5" fill="none" stroke-dasharray="6 10"/></svg></div>
+      <div class="hex-ring3"><svg viewBox="0 0 80 80" fill="none"><polygon points="40,3 74,22 74,58 40,77 6,58 6,22" stroke="#ff2cf7" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/></svg></div>
       <div class="load-logo">NEXOR</div>
     </div>
     <div class="load-bars">
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
-      <div class="load-bar"></div>
+      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
+      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
+      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
     </div>
-    <div class="load-text">INITIALIZING PREMIUM ENGINE</div>
+    <div class="load-status" id="loadStatus">SCANNING SYSTEM...</div>
     <div class="load-percent" id="loadPct">0%</div>
-    <div class="load-progress">
-      <div class="load-progress-fill" id="loadFill"></div>
-    </div>
+    <div class="load-progress"><div class="load-progress-fill" id="loadFill"></div></div>
   </div>
 </div>
 
 <!-- LOGIN -->
 <div id="login" class="screen">
   <div class="glass">
-    <div class="title">NEXOR LOGIN</div>
-    <div class="subtitle">PREMIUM OVERDRAG SYSTEM • CYBER EDITION</div>
-    <div class="inputBox">
-      <input type="text" id="key" placeholder="ENTER PREMIUM KEY" autocomplete="off">
-    </div>
+    <div class="gc tr"></div><div class="gc bl"></div><div class="gc br"></div>
+    <div class="login-logo">NEXOR</div>
+    <div class="login-sub">PREMIUM CYBER EDITION v3.0</div>
+    <div class="inputBox"><input type="text" id="key" placeholder="ENTER PREMIUM KEY" autocomplete="off"></div>
     <button class="btn" onclick="login()">ACCESS SYSTEM</button>
   </div>
 </div>
 
 <!-- PANEL -->
-<div id="panel" class="screen" style="align-items:center;justify-content:flex-start;overflow-y:auto;padding-top:20px;padding-bottom:20px;">
+<div id="panel" class="screen" style="align-items:center;justify-content:flex-start;overflow-y:auto;padding:14px 0 28px;">
   <div class="panel-inner">
 
     <div class="panel-header">
-      <div class="panelTitle">NEXOR TOOLS</div>
-      <div class="badge">PREMIUM 150%</div>
+      <div class="ph-row">
+        <div class="panelTitle">NEXOR TOOLS</div>
+        <div class="online-dot"><div class="dot-blink"></div>ONLINE</div>
+      </div>
+      <div class="badge">⚡ PREMIUM 150%</div>
     </div>
 
-    <!-- Toggles -->
     <div class="card">
-      <div class="card-title">CORE MODULES</div>
-      <div class="row">
-        <div class="label">Max Responsive Touch</div>
-        <div class="switch" onclick="this.classList.toggle('on')"></div>
-      </div>
-      <div class="row" style="margin-bottom:0">
-        <div class="label">Sensitivity Optimized</div>
-        <div class="switch" onclick="this.classList.toggle('on')"></div>
-      </div>
+      <div class="card-title">◈ CORE MODULES</div>
+      <div class="row"><div class="label">Max Responsive Touch</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="row"><div class="label">Sensitivity Optimized</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="row"><div class="label">Anti Lag Engine</div><div class="switch" onclick="this.classList.toggle('on')"></div></div>
+      <div class="row"><div class="label">Aim Stabilizer Pro</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
     </div>
 
-    <!-- Sliders -->
     <div class="card">
-      <div class="card-title">POINTER SETTINGS</div>
-      <div class="val-row">
-        <div class="label">Kecepatan Penunjuk</div>
-        <div class="value" id="pVal">75</div>
-      </div>
+      <div class="card-title">◈ POINTER SETTINGS</div>
+      <div class="val-row"><div class="label">Kecepatan Penunjuk</div><div class="value" id="pVal">75</div></div>
       <input type="range" min="0" max="100" value="75" class="slider" id="pointer">
-
-      <div class="val-row" style="margin-top:16px;">
-        <div class="label">Responsive Drag</div>
-        <div class="value" id="dVal">6</div>
-      </div>
+      <div class="val-row" style="margin-top:16px;"><div class="label">Responsive Drag</div><div class="value" id="dVal">6</div></div>
       <input type="range" min="1" max="8" value="6" class="slider" id="drag">
+      <div class="val-row" style="margin-top:16px;"><div class="label">Touch Boost Level</div><div class="value" id="tbVal">4</div></div>
+      <input type="range" min="1" max="10" value="4" class="slider" id="touchboost">
     </div>
 
     <!-- SENSI RECOMMENDER -->
     <div class="sensi-card">
-      <div class="card-title">🎯 REKOMENDASI SENSI — FREE FIRE (IPHONE)</div>
-
+      <div class="card-title">◈ REKOMENDASI SENSI FREE FIRE — IPHONE</div>
       <div class="device-input-wrap">
-        <input type="text" id="deviceInput" placeholder="Ketik nama device (cth: iPhone 13)" autocomplete="off" oninput="filterDevices(this.value)" onfocus="filterDevices(this.value)">
+        <input type="text" id="deviceInput" placeholder="Ketik nama device (cth: iPhone 13 Pro)" autocomplete="off" oninput="filterDevices(this.value)" onfocus="filterDevices(this.value)">
       </div>
-
       <div class="suggestions" id="suggestions"></div>
-
       <div class="sensi-result" id="sensiResult">
         <div class="sensi-device-name" id="sensiDeviceName">—</div>
         <div class="sensi-grid">
-          <div class="sensi-item">
-            <div class="sensi-item-label">GENERAL</div>
-            <div class="sensi-item-val" id="sGeneral">—</div>
-          </div>
-          <div class="sensi-item">
-            <div class="sensi-item-label">NO SCOPE</div>
-            <div class="sensi-item-val" id="sNoScope">—</div>
-          </div>
-          <div class="sensi-item">
-            <div class="sensi-item-label">RED DOT / 2x</div>
-            <div class="sensi-item-val" id="sRedDot">—</div>
-          </div>
-          <div class="sensi-item">
-            <div class="sensi-item-label">4x SCOPE</div>
-            <div class="sensi-item-val" id="s4x">—</div>
-          </div>
-          <div class="sensi-item">
-            <div class="sensi-item-label">SNIPER</div>
-            <div class="sensi-item-val" id="sSniper">—</div>
-          </div>
-          <div class="sensi-item">
-            <div class="sensi-item-label">FREE LOOK</div>
-            <div class="sensi-item-val" id="sFreeLook">—</div>
-          </div>
+          <div class="sensi-item"><div class="sensi-item-label">GENERAL</div><div class="sensi-item-val" id="sGeneral">—</div></div>
+          <div class="sensi-item"><div class="sensi-item-label">NO SCOPE</div><div class="sensi-item-val" id="sNoScope">—</div></div>
+          <div class="sensi-item"><div class="sensi-item-label">RED DOT</div><div class="sensi-item-val" id="sRedDot">—</div></div>
+          <div class="sensi-item"><div class="sensi-item-label">2x SCOPE</div><div class="sensi-item-val" id="s2x">—</div></div>
+          <div class="sensi-item"><div class="sensi-item-label">4x SCOPE</div><div class="sensi-item-val" id="s4x">—</div></div>
+          <div class="sensi-item"><div class="sensi-item-label">SNIPER</div><div class="sensi-item-val" id="sSniper">—</div></div>
         </div>
         <div class="sensi-tip" id="sensiTip"></div>
       </div>
     </div>
 
-    <!-- Actions -->
     <div class="card">
-      <div class="card-title">INJECTION CONTROL</div>
-      <button class="btn injectBtn" onclick="inject()">⚡ INJECT</button>
-      <button class="btn ff" onclick="launchFF()" style="margin-top:10px;">🔥 FREE FIRE</button>
-      <div class="monitor" id="monitor">[ SYSTEM READY ] Waiting for injection...</div>
+      <div class="card-title">◈ INJECTION CONTROL</div>
+      <button class="btn injectBtn" onclick="inject()">⚡ INJECT PREMIUM</button>
+      <button class="btn ff-btn" onclick="launchFF()">🔥 LAUNCH FREE FIRE</button>
+      <div class="monitor" id="monitor">[ NEXOR v3.0 ] System ready. Awaiting injection command...</div>
     </div>
 
   </div>
 </div>
 
+<!-- FF FULLSCREEN LOADER -->
+<div id="ffLoader">
+  <div class="ff-bg"></div>
+  <div class="ff-grid"></div>
+  <div class="ff-content">
+    <div class="ff-title">FREE FIRE</div>
+    <div class="ff-sub">NEXOR PREMIUM LAUNCH</div>
+    <div class="ff-ring-wrap">
+      <div class="ff-ring-outer"></div>
+      <div class="ff-ring-mid"></div>
+      <div class="ff-pct-big" id="ffPct">0%</div>
+    </div>
+    <div class="ff-progress-wrap"><div class="ff-progress-fill" id="ffFill"></div></div>
+    <div class="ff-status" id="ffStatus">INITIALIZING...</div>
+  </div>
+</div>
+
 <script>
-/* ─── PARTICLE NETWORK CANVAS ─── */
-const canvas = document.getElementById('bgCanvas');
-const ctx = canvas.getContext('2d');
-let W, H, particles = [];
-
-function resize(){
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+/* ─── PARTICLE NETWORK ─── */
+const canvas=document.getElementById('bgCanvas');
+const ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Pt{
+  constructor(){this.reset(true);}
+  reset(init){this.x=Math.random()*W;this.y=init?Math.random()*H:Math.random()<.5?-5:H+5;this.vx=(Math.random()-.5)*.5;this.vy=(Math.random()-.5)*.5;this.r=Math.random()*1.8+.7;this.hue=Math.random()<.5?270:185;}
+  update(){this.x+=this.vx;this.y+=this.vy;if(this.x<-10||this.x>W+10||this.y<-10||this.y>H+10)this.reset(false);}
 }
-resize();
-window.addEventListener('resize', resize);
-
-class Particle {
-  constructor(){this.reset();}
-  reset(){
-    this.x = Math.random()*W;
-    this.y = Math.random()*H;
-    this.vx = (Math.random()-.5)*.5;
-    this.vy = (Math.random()-.5)*.5;
-    this.r = Math.random()*2+1;
-  }
-  update(){
-    this.x += this.vx; this.y += this.vy;
-    if(this.x<0||this.x>W) this.vx*=-1;
-    if(this.y<0||this.y>H) this.vy*=-1;
-  }
-}
-
-for(let i=0;i<90;i++) particles.push(new Particle());
-
-const mouse = {x:-9999,y:-9999};
+for(let i=0;i<95;i++)pts.push(new Pt());
+const mouse={x:-9999,y:-9999};
 window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-
+window.addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
 function drawNet(){
   ctx.clearRect(0,0,W,H);
-
-  // subtle dark gradient overlay
-  const grd = ctx.createRadialGradient(W/2,0,0,W/2,H/2,H);
-  grd.addColorStop(0,'rgba(60,0,100,0.18)');
-  grd.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0,0,W,H);
-
-  const allPts = [...particles, mouse];
-
-  // connections
-  for(let i=0;i<particles.length;i++){
-    for(let j=i+1;j<allPts.length;j++){
-      const dx = particles[i].x-allPts[j].x;
-      const dy = particles[i].y-allPts[j].y;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const maxD = j===particles.length ? 160 : 120;
-      if(dist<maxD){
-        const alpha = (1-dist/maxD)*.6;
-        const grad = ctx.createLinearGradient(particles[i].x,particles[i].y,allPts[j].x,allPts[j].y);
-        grad.addColorStop(0,`rgba(155,48,255,${alpha})`);
-        grad.addColorStop(1,`rgba(0,255,231,${alpha*.5})`);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = .8;
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x,particles[i].y);
-        ctx.lineTo(allPts[j].x,allPts[j].y);
-        ctx.stroke();
+  const all=[...pts,mouse];
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<all.length;j++){
+      const dx=pts[i].x-all[j].x,dy=pts[i].y-all[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      const maxD=j>=pts.length?165:108;
+      if(d<maxD){
+        const a=(1-d/maxD)*.52;
+        const g=ctx.createLinearGradient(pts[i].x,pts[i].y,all[j].x,all[j].y);
+        g.addColorStop(0,`hsla(${pts[i].hue},100%,65%,${a})`);
+        g.addColorStop(1,`hsla(185,100%,60%,${a*.45})`);
+        ctx.strokeStyle=g;ctx.lineWidth=.75;
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(all[j].x,all[j].y);ctx.stroke();
       }
     }
   }
-
-  // dots
-  particles.forEach(p=>{
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle = 'rgba(155,48,255,0.9)';
-    ctx.shadowColor='#9b30ff';
-    ctx.shadowBlur=8;
-    ctx.fill();
-    ctx.shadowBlur=0;
-    p.update();
+  pts.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${p.hue},100%,70%,.88)`;
+    ctx.shadowColor=`hsl(${p.hue},100%,60%)`;ctx.shadowBlur=9;
+    ctx.fill();ctx.shadowBlur=0;p.update();
   });
-
   requestAnimationFrame(drawNet);
 }
 drawNet();
 
-/* ─── LOADING PROGRESS ─── */
-let pct = 0;
-const fill = document.getElementById('loadFill');
-const pctEl = document.getElementById('loadPct');
-const interval = setInterval(()=>{
-  pct += Math.random()*6+2;
-  if(pct>=100){pct=100;clearInterval(interval);}
-  fill.style.width = pct+'%';
-  pctEl.textContent = Math.floor(pct)+'%';
-},100);
-
-setTimeout(()=>{
-  document.getElementById('loading').style.display='none';
-  document.getElementById('login').style.display='flex';
-},3800);
+/* ─── LOADING ─── */
+const loadStatuses=['SCANNING SYSTEM...','VERIFYING LICENSE...','LOADING MODULES...','APPLYING PATCHES...','CALIBRATING ENGINE...','FINALIZING SETUP...'];
+let lpct=0,lsi=0;
+const lFill=document.getElementById('loadFill'),lPct=document.getElementById('loadPct'),lStat=document.getElementById('loadStatus');
+const lInt=setInterval(()=>{
+  lpct+=Math.random()*3.5+1.2;
+  if(lpct>=100){lpct=100;clearInterval(lInt);}
+  lFill.style.width=lpct+'%';lPct.textContent=Math.floor(lpct)+'%';
+  const si=Math.floor(lpct/17);
+  if(si!==lsi&&si<loadStatuses.length){lsi=si;lStat.textContent=loadStatuses[si];}
+},130);
+setTimeout(()=>{document.getElementById('loading').style.display='none';document.getElementById('login').style.display='flex';},4400);
 
 /* ─── LOGIN ─── */
 function login(){
   const k=document.getElementById('key').value;
-  if(k.length>0){
-    document.getElementById('login').style.display='none';
-    document.getElementById('panel').style.display='flex';
-  }
+  if(k.length>0){document.getElementById('login').style.display='none';document.getElementById('panel').style.display='flex';}
 }
 document.getElementById('key').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
 /* ─── SLIDERS ─── */
-function updateSlider(el){
-  const pct=(el.value-el.min)/(el.max-el.min)*100;
-  el.style.setProperty('--pct',pct+'%');
+function setSlider(id,valId){
+  const el=document.getElementById(id);
+  el.oninput=function(){
+    const p=(this.value-this.min)/(this.max-this.min)*100;
+    this.style.setProperty('--pct',p+'%');
+    document.getElementById(valId).textContent=this.value;
+  };
+  const p=(el.value-el.min)/(el.max-el.min)*100;
+  el.style.setProperty('--pct',p+'%');
 }
-const pSlider=document.getElementById('pointer');
-const dSlider=document.getElementById('drag');
-pSlider.oninput=function(){document.getElementById('pVal').textContent=this.value;updateSlider(this);}
-dSlider.oninput=function(){document.getElementById('dVal').textContent=this.value;updateSlider(this);}
-updateSlider(pSlider);updateSlider(dSlider);
+setSlider('pointer','pVal');setSlider('drag','dVal');setSlider('touchboost','tbVal');
 
-/* ─── INJECT ─── */
+/* ─── INJECT (LONG ~6 sec) ─── */
+const injectLogs=[
+  {t:0,   c:'#6dffb3', m:'[SYS] Booting Nexor Premium Engine v3.0...'},
+  {t:280, c:'#6dffb3', m:'[SYS] Establishing secure channel...'},
+  {t:580, c:'#6dffb3', m:'[NET] Handshake with premium server... OK'},
+  {t:860, c:'#6dffb3', m:'[NET] License token verified ✓'},
+  {t:1100,c:'#6dffb3', m:'[MOD] Loading touch_optimizer.dll...'},
+  {t:1340,c:'#6dffb3', m:'[MOD] Loading aim_stabilizer_pro.dll...'},
+  {t:1560,c:'#6dffb3', m:'[MOD] Loading overdrag_engine.dll...'},
+  {t:1780,c:'#6dffb3', m:'[MOD] Loading visual_layer_x.dll...'},
+  {t:2000,c:'#6dffb3', m:'[MOD] Loading anti_lag_core.dll...'},
+  {t:2240,c:'#6dffb3', m:'[MOD] Loading pointer_enhancer.dll...'},
+  {t:2460,c:'#6dffb3', m:'[OPT] Calibrating touch response matrix...'},
+  {t:2700,c:'#6dffb3', m:'[OPT] Applying sensitivity curve override...'},
+  {t:2940,c:'#6dffb3', m:'[OPT] Setting pointer acceleration: PREMIUM'},
+  {t:3180,c:'#6dffb3', m:'[OPT] Overdrag coefficient: OPTIMIZED'},
+  {t:3420,c:'#ff9933', m:'[INJ] Scanning target process...'},
+  {t:3680,c:'#ff9933', m:'[INJ] Target located: com.dts.freefireth'},
+  {t:3920,c:'#ff9933', m:'[INJ] Attaching to process memory...'},
+  {t:4200,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████ 25%'},
+  {t:4460,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████ 50%'},
+  {t:4720,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████████ 75%'},
+  {t:4980,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████████████ 100%'},
+  {t:5220,c:'#ff9933', m:'[INJ] Visual enhancement layer active...'},
+  {t:5460,c:'#ffd700', m:'[FIN] Running post-injection integrity check...'},
+  {t:5700,c:'#ffd700', m:'[FIN] All modules: PASS ✓'},
+  {t:5940,c:'#ffd700', m:'[FIN] Performance boost: +150% ACTIVE'},
+  {t:6200,c:'#ff2cf7', m:'[✔✔] NEXOR PREMIUM INJECTION COMPLETE ✔✔'},
+];
 function inject(){
-  const logs=[
-    "[+] Booting Nexor Premium Engine...",
-    "[+] Optimizing Touch Response...",
-    "[+] Applying Aim Stabilizer...",
-    "[+] Syncing Overdrag Values...",
-    "[+] Injecting Visual Layer...",
-    "[+] Enhancing Pointer Movement...",
-    "[✔] Premium Injection Completed."
-  ];
   const monitor=document.getElementById('monitor');
   monitor.innerHTML='';
-  let i=0;
-  const inter=setInterval(()=>{
-    if(i<logs.length){
-      const color=i===logs.length-1?'#ff2cf7':'#6dffb3';
-      monitor.innerHTML+=`<span style="color:${color}">${logs[i]}</span><br>`;
-      monitor.scrollTop=monitor.scrollHeight;i++;
-    }else{clearInterval(inter);}
-  },580);
-}
-
-function launchFF(){window.location.href='freefire://';}
-
-/* ─── SENSITIVITY DATA (iPhone only) ─── */
-// Range: General 120–198, scaled per device performance tier
-const iPhoneData = [
-  // iPhone 6 series
-  {names:['iphone 6s','iphone 6s plus'],tier:1,tip:'Chipset A9 — gunakan sensi rendah untuk stabilitas.'},
-  // iPhone 7 series
-  {names:['iphone 7','iphone 7 plus'],tier:2,tip:'Chipset A10 — performa stabil, mid sensi cocok.'},
-  // iPhone 8 series
-  {names:['iphone 8','iphone 8 plus'],tier:3,tip:'Chipset A11 — mid-high sensi untuk respons optimal.'},
-  // iPhone X series
-  {names:['iphone x','iphone xs','iphone xs max','iphone xr'],tier:3,tip:'OLED/Face ID — sensi mid-high memberikan aim akurat.'},
-  // iPhone 11 series
-  {names:['iphone 11','iphone 11 pro','iphone 11 pro max'],tier:4,tip:'Chipset A13 — high sensi dengan stabilizer aktif.'},
-  // iPhone 12 series
-  {names:['iphone 12','iphone 12 mini','iphone 12 pro','iphone 12 pro max'],tier:5,tip:'Chipset A14 5G — performa top, sensi tinggi cocok.'},
-  // iPhone 13 series
-  {names:['iphone 13','iphone 13 mini','iphone 13 pro','iphone 13 pro max'],tier:5,tip:'Chipset A15 — sensi tinggi + stabilizer untuk headshot konsisten.'},
-  // iPhone 14 series
-  {names:['iphone 14','iphone 14 plus','iphone 14 pro','iphone 14 pro max'],tier:6,tip:'Chipset A15/A16 — gunakan sensi max tier untuk reaksi tercepat.'},
-  // iPhone 15 series
-  {names:['iphone 15','iphone 15 plus','iphone 15 pro','iphone 15 pro max'],tier:6,tip:'Chipset A16/A17 Pro — performa tertinggi, sensi max optimal.'},
-  // iPhone 16 series
-  {names:['iphone 16','iphone 16 plus','iphone 16 pro','iphone 16 pro max'],tier:6,tip:'Chipset A18/A18 Pro — flagship terbaru, full max sensi disarankan.'},
-  // iPad (common)
-  {names:['ipad'],tier:3,tip:'Layar besar — kurangi sensi agar aim lebih presisi.'},
-];
-
-// Tier → sensitivity values (range 120–198)
-const tierMap = {
-  1:{general:120,noScope:130,redDot:125,scope4x:122,sniper:120,freeLook:130},
-  2:{general:134,noScope:142,redDot:138,scope4x:132,sniper:128,freeLook:140},
-  3:{general:148,noScope:156,redDot:152,scope4x:145,sniper:138,freeLook:152},
-  4:{general:160,noScope:168,redDot:163,scope4x:155,sniper:148,freeLook:162},
-  5:{general:174,noScope:180,redDot:176,scope4x:168,sniper:158,freeLook:175},
-  6:{general:190,noScope:198,redDot:193,scope4x:183,sniper:170,freeLook:190},
-};
-
-function allDevices(){
-  const arr=[];
-  iPhoneData.forEach(d=>d.names.forEach(n=>{
-    arr.push({label:n.replace(/\b\w/g,c=>c.toUpperCase()),key:n,tier:d.tier,tip:d.tip});
-  }));
-  return arr;
-}
-
-function filterDevices(val){
-  const sug=document.getElementById('suggestions');
-  const res=document.getElementById('sensiResult');
-  if(!val.trim()){sug.style.display='none';return;}
-
-  const v=val.toLowerCase();
-  const matches=allDevices().filter(d=>d.key.includes(v)||d.label.toLowerCase().includes(v));
-
-  if(matches.length===0){sug.style.display='none';return;}
-  sug.style.display='block';
-  sug.innerHTML=matches.slice(0,6).map(d=>
-    `<div class="sug-item" onclick="selectDevice('${d.label}','${d.tier}','${d.tip.replace(/'/g,"\\'")}')">
-      <div class="sug-dot"></div>${d.label}
-    </div>`
-  ).join('');
-}
-
-function selectDevice(label,tier,tip){
-  document.getElementById('deviceInput').value=label;
-  document.getElementById('suggestions').style.display='none';
-
-  const s=tierMap[tier];
-  document.getElementById('sensiDeviceName').textContent='📱 '+label.toUpperCase();
-  document.getElementById('sGeneral').textContent=s.general;
-  document.getElementById('sNoScope').textContent=s.noScope;
-  document.getElementById('sRedDot').textContent=s.redDot;
-  document.getElementById('s4x').textContent=s.scope4x;
-  document.getElementById('sSniper').textContent=s.sniper;
-  document.getElementById('sFreeLook').textContent=s.freeLook;
-  document.getElementById('sensiTip').textContent='💡 '+tip;
-
-  const res=document.getElementById('sensiResult');
-  res.style.display='block';
-  res.style.animation='none';
-  requestAnimationFrame(()=>{
-    res.style.animation='fadeIn .4s ease';
+  injectLogs.forEach(({t,c,m})=>{
+    setTimeout(()=>{
+      monitor.innerHTML+=`<span style="color:${c}">${m}</span><br>`;
+      monitor.scrollTop=monitor.scrollHeight;
+    },t);
   });
 }
 
-// close suggestions on outside click
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.sensi-card')){
-    document.getElementById('suggestions').style.display='none';
-  }
-});
+/* ─── FF LOADER ─── */
+const ffStats=['INITIALIZING ENGINE...','LOADING ASSETS...','VERIFYING ACCOUNT...','APPLYING NEXOR MODS...','CALIBRATING AIM ASSIST...','CONNECTING TO SERVER...','SYNCING PLAYER DATA...','LOADING MAP RESOURCES...','OPTIMIZING GRAPHICS...','GET READY...'];
+function launchFF(){
+  const loader=document.getElementById('ffLoader');
+  loader.style.display='flex';
+  const fill=document.getElementById('ffFill'),pct=document.getElementById('ffPct'),stat=document.getElementById('ffStatus');
+  let p=0,si=0;
+  const int=setInterval(()=>{
+    p+=Math.random()*2.2+.6;
+    if(p>=100){
+      p=100;clearInterval(int);
+      pct.textContent='100%';fill.style.width='100%';
+      stat.textContent='LAUNCHING... GET READY!';
+      setTimeout(()=>{loader.style.display='none';window.location.href='freefire://';},1400);
+    }
+    fill.style.width=p+'%';pct.textContent=Math.floor(p)+'%';
+    const ns=Math.floor(p/11);
+    if(ns!==si&&ns<ffStats.length){si=ns;stat.textContent=ffStats[si];}
+  },90);
+}
 
-/* ─── FADE IN ANIMATION ─── */
-const style=document.createElement('style');
-style.textContent='@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}';
-document.head.appendChild(style);
+/* ─── SENSI DATA (165–200) ─── */
+const iPhoneDB=[
+  {key:'iphone se 1st',label:'iPhone SE (1st Gen)',tier:1,tip:'Chipset A9 — sensi rendah optimal di layar 4".'},
+  {key:'iphone 6s',label:'iPhone 6s',tier:1,tip:'Chipset A9 — sensi paling rendah untuk stabilitas.'},
+  {key:'iphone 6s plus',label:'iPhone 6s Plus',tier:1,tip:'Chipset A9 layar 5.5" — sedikit lebih tinggi.'},
+  {key:'iphone se 2nd',label:'iPhone SE (2nd Gen)',tier:2,tip:'Chipset A13 bodi kecil — mid-low sensi cocok.'},
+  {key:'iphone se 3rd',label:'iPhone SE (3rd Gen)',tier:2,tip:'Chipset A15 bodi kecil — mid-low sensi.'},
+  {key:'iphone 7',label:'iPhone 7',tier:2,tip:'Chipset A10 — mid-low sensi stabil.'},
+  {key:'iphone 7 plus',label:'iPhone 7 Plus',tier:2,tip:'Chipset A10 layar 5.5" — mid-low.'},
+  {key:'iphone 8',label:'iPhone 8',tier:3,tip:'Chipset A11 — mid sensi untuk respons solid.'},
+  {key:'iphone 8 plus',label:'iPhone 8 Plus',tier:3,tip:'Chipset A11 layar besar — mid sensi.'},
+  {key:'iphone x',label:'iPhone X',tier:3,tip:'Chipset A11 OLED pertama — mid sensi akurat.'},
+  {key:'iphone xr',label:'iPhone XR',tier:3,tip:'Chipset A12 LCD — mid sensi.'},
+  {key:'iphone xs',label:'iPhone XS',tier:4,tip:'Chipset A12 OLED — mid-high sensi.'},
+  {key:'iphone xs max',label:'iPhone XS Max',tier:4,tip:'Chipset A12 layar besar — mid-high.'},
+  {key:'iphone 11',label:'iPhone 11',tier:4,tip:'Chipset A13 — mid-high sensi headshot konsisten.'},
+  {key:'iphone 11 pro',label:'iPhone 11 Pro',tier:5,tip:'Chipset A13 OLED — high sensi responsif.'},
+  {key:'iphone 11 pro max',label:'iPhone 11 Pro Max',tier:5,tip:'Chipset A13 layar 6.5" — high sensi.'},
+  {key:'iphone 12',label:'iPhone 12',tier:5,tip:'Chipset A14 5G — high sensi stabil.'},
+  {key:'iphone 12 mini',label:'iPhone 12 Mini',tier:5,tip:'Chipset A14 bodi kecil — high sensi grip kuat.'},
+  {key:'iphone 12 pro',label:'iPhone 12 Pro',tier:5,tip:'Chipset A14 OLED — high sensi.'},
+  {key:'iphone 12 pro max',label:'iPhone 12 Pro Max',tier:6,tip:'Chipset A14 layar 6.7" — near max sensi.'},
+  {key:'iphone 13',label:'iPhone 13',tier:6,tip:'Chipset A15 — near max sensi headshot rate tinggi.'},
+  {key:'iphone 13 mini',label:'iPhone 13 Mini',tier:6,tip:'Chipset A15 mini — near max sensi.'},
+  {key:'iphone 13 pro',label:'iPhone 13 Pro',tier:6,tip:'Chipset A15 ProMotion 120Hz — near max super smooth.'},
+  {key:'iphone 13 pro max',label:'iPhone 13 Pro Max',tier:7,tip:'Chipset A15 layar jumbo — sensi max penuh.'},
+  {key:'iphone 14',label:'iPhone 14',tier:6,tip:'Chipset A15 — near max sensi.'},
+  {key:'iphone 14 plus',label:'iPhone 14 Plus',tier:6,tip:'Chipset A15 layar 6.7" — near max.'},
+  {key:'iphone 14 pro',label:'iPhone 14 Pro',tier:7,tip:'Chipset A16 ProMotion 120Hz — sensi max optimal.'},
+  {key:'iphone 14 pro max',label:'iPhone 14 Pro Max',tier:7,tip:'Chipset A16 flagship — sensi max penuh.'},
+  {key:'iphone 15',label:'iPhone 15',tier:7,tip:'Chipset A16 — sensi max generasi baru.'},
+  {key:'iphone 15 plus',label:'iPhone 15 Plus',tier:7,tip:'Chipset A16 layar 6.7" — sensi max.'},
+  {key:'iphone 15 pro',label:'iPhone 15 Pro',tier:7,tip:'Chipset A17 Pro titanium — sensi max sempurna.'},
+  {key:'iphone 15 pro max',label:'iPhone 15 Pro Max',tier:7,tip:'Chipset A17 Pro flagship — sensi max absolut.'},
+  {key:'iphone 16',label:'iPhone 16',tier:7,tip:'Chipset A18 — sensi max generasi terbaru.'},
+  {key:'iphone 16 plus',label:'iPhone 16 Plus',tier:7,tip:'Chipset A18 layar besar — sensi max.'},
+  {key:'iphone 16 pro',label:'iPhone 16 Pro',tier:7,tip:'Chipset A18 Pro 120Hz — sensi max all out.'},
+  {key:'iphone 16 pro max',label:'iPhone 16 Pro Max',tier:7,tip:'Chipset A18 Pro ultimate — sensi max 200 disarankan.'},
+];
+
+// Tier 1→7, range 165–200
+const tierMap={
+  1:{general:165,noScope:168,redDot:166,scope2x:165,scope4x:165,sniper:165},
+  2:{general:168,noScope:172,redDot:170,scope2x:168,scope4x:167,sniper:166},
+  3:{general:173,noScope:177,redDot:175,scope2x:173,scope4x:171,sniper:169},
+  4:{general:178,noScope:183,redDot:180,scope2x:177,scope4x:175,sniper:172},
+  5:{general:184,noScope:189,redDot:186,scope2x:183,scope4x:180,sniper:176},
+  6:{general:190,noScope:195,redDot:192,scope2x:189,scope4x:185,sniper:181},
+  7:{general:196,noScope:200,redDot:198,scope2x:194,scope4x:190,sniper:185},
+};
+
+function filterDevices(val){
+  const sug=document.getElementById('suggestions');
+  if(!val.trim()){sug.style.display='none';return;}
+  const v=val.toLowerCase();
+  const matches=iPhoneDB.filter(d=>d.key.includes(v)||d.label.toLowerCase().includes(v));
+  if(!matches.length){sug.style.display='none';return;}
+  sug.style.display='block';
+  sug.innerHTML=matches.slice(0,8).map(d=>`
+    <div class="sug-item" onclick="selectDevice(${iPhoneDB.indexOf(d)})">
+      <div class="sug-dot"></div>
+      <span class="sug-label">${d.label}</span>
+      <span class="sug-tier">T${d.tier}</span>
+    </div>`).join('');
+}
+
+function selectDevice(idx){
+  const d=iPhoneDB[idx];const s=tierMap[d.tier];
+  document.getElementById('deviceInput').value=d.label;
+  document.getElementById('suggestions').style.display='none';
+  document.getElementById('sensiDeviceName').textContent='📱 '+d.label.toUpperCase();
+  document.getElementById('sGeneral').textContent=s.general;
+  document.getElementById('sNoScope').textContent=s.noScope;
+  document.getElementById('sRedDot').textContent=s.redDot;
+  document.getElementById('s2x').textContent=s.scope2x;
+  document.getElementById('s4x').textContent=s.scope4x;
+  document.getElementById('sSniper').textContent=s.sniper;
+  document.getElementById('sensiTip').textContent='💡 '+d.tip;
+  document.getElementById('sensiResult').style.display='block';
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.sensi-card'))document.getElementById('suggestions').style.display='none';
+});
 </script>
 </body>
 </html>
