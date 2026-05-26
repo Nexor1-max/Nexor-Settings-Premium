@@ -3,490 +3,556 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Nexor Premium</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<title>NXR Premium</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --purple:#9b30ff;--pink:#ff2cf7;--cyan:#00ffe7;--green:#39ff8f;
-  --dark:#03000b;--card-bg:rgba(10,0,22,0.88);--border:rgba(155,48,255,0.3);
-}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);color:white;font-family:'Rajdhani',sans-serif;}
-#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
-.scanlines{position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:4;}
-
-.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:10;}
+body{font-family:'Courier New',monospace;background:#000;overflow:hidden;color:#00cfff;height:100vh;width:100vw;}
+canvas{position:fixed;top:0;left:0;z-index:0;}
+#matrixCanvas{position:fixed;top:0;left:0;z-index:1;opacity:0.06;}
+.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:10;}
 
 /* LOADING */
-#loading{background:transparent;}
-.load-wrap{display:flex;flex-direction:column;align-items:center;}
-.hex-container{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
-.hex-ring{position:absolute;width:180px;height:180px;animation:hexSpin 4s linear infinite;}
-.hex-ring svg{width:100%;height:100%;filter:drop-shadow(0 0 14px var(--purple)) drop-shadow(0 0 28px var(--pink));}
-.hex-ring2{position:absolute;width:128px;height:128px;animation:hexSpin 2.4s linear infinite reverse;}
-.hex-ring2 svg{width:100%;height:100%;filter:drop-shadow(0 0 10px var(--cyan));}
-.hex-ring3{position:absolute;width:80px;height:80px;animation:hexSpin 1.8s linear infinite;}
-.hex-ring3 svg{width:100%;height:100%;filter:drop-shadow(0 0 8px var(--pink));}
-@keyframes hexSpin{to{transform:rotate(360deg);}}
-.load-logo{font-family:'Orbitron',sans-serif;font-size:30px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:absolute;animation:glitch 4s infinite;}
-@keyframes glitch{0%,90%,100%{clip-path:none;transform:none;}91%{clip-path:inset(15% 0 65% 0);transform:translateX(-5px);}92%{clip-path:inset(55% 0 15% 0);transform:translateX(5px);}93%{clip-path:none;}}
-.load-bars{display:flex;gap:5px;margin-top:28px;}
-.load-bar{width:5px;height:36px;background:linear-gradient(180deg,var(--pink),var(--purple));border-radius:3px;box-shadow:0 0 10px var(--purple);animation:barPulse 1s ease-in-out infinite;}
-.load-bar:nth-child(2){animation-delay:.1s;background:linear-gradient(180deg,var(--purple),var(--cyan));}
-.load-bar:nth-child(3){animation-delay:.2s;}
-.load-bar:nth-child(4){animation-delay:.3s;background:linear-gradient(180deg,var(--cyan),var(--purple));}
-.load-bar:nth-child(5){animation-delay:.4s;}
-.load-bar:nth-child(6){animation-delay:.5s;background:linear-gradient(180deg,var(--pink),var(--cyan));}
-.load-bar:nth-child(7){animation-delay:.6s;}
-.load-bar:nth-child(8){animation-delay:.7s;}
-.load-bar:nth-child(9){animation-delay:.8s;background:linear-gradient(180deg,var(--purple),var(--pink));}
-@keyframes barPulse{0%,100%{transform:scaleY(.45);opacity:.35;}50%{transform:scaleY(2.1);opacity:1;}}
-.load-status{margin-top:20px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);opacity:.7;min-height:16px;text-align:center;}
-.load-percent{font-family:'Orbitron',sans-serif;font-size:15px;color:var(--purple);letter-spacing:2px;margin-top:4px;}
-.load-progress{width:280px;height:4px;background:rgba(155,48,255,.1);border-radius:999px;overflow:hidden;margin-top:8px;}
-.load-progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink),var(--cyan));border-radius:999px;box-shadow:0 0 12px var(--purple);width:0%;transition:width .25s ease;}
+#loadingScreen{background:#000;}
+.nxr-logo{font-size:64px;font-weight:900;letter-spacing:12px;color:#00cfff;text-shadow:0 0 20px #00cfff,0 0 60px #00cfff,0 0 120px #0080ff;animation:logoPulse 2s ease-in-out infinite;}
+@keyframes logoPulse{0%,100%{text-shadow:0 0 20px #00cfff,0 0 60px #00cfff,0 0 100px #0080ff;letter-spacing:12px;}50%{text-shadow:0 0 40px #00cfff,0 0 100px #00cfff,0 0 160px #0080ff,0 0 200px #00cfff;letter-spacing:14px;}}
+.nxr-sub{font-size:10px;letter-spacing:6px;color:#0060aa;margin-top:6px;}
+.scan-line{width:340px;height:1px;background:linear-gradient(90deg,transparent,#00cfff,transparent);margin:18px 0 6px;animation:scanMove 2s linear infinite;}
+@keyframes scanMove{0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3}}
+.hex-grid{display:flex;gap:8px;margin:10px 0;}
+.hex{width:11px;height:11px;background:#00cfff;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);animation:hexBlink 0.7s ease infinite;box-shadow:0 0 6px #00cfff;}
+.hex:nth-child(2){animation-delay:0.1s;}.hex:nth-child(3){animation-delay:0.2s;}.hex:nth-child(4){animation-delay:0.3s;}.hex:nth-child(5){animation-delay:0.4s;}.hex:nth-child(6){animation-delay:0.5s;}.hex:nth-child(7){animation-delay:0.6s;}.hex:nth-child(8){animation-delay:0.7s;}
+@keyframes hexBlink{0%,100%{opacity:1;background:#00cfff;}50%{opacity:0.15;background:#003366;}}
+.progress-wrap{width:340px;margin-top:10px;}
+.progress-label{display:flex;justify-content:space-between;font-size:9px;color:#005588;margin-bottom:5px;letter-spacing:3px;}
+.progress-track{height:2px;background:rgba(0,100,200,0.12);position:relative;overflow:hidden;}
+.progress-track::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.4),transparent);animation:sweep 1.8s linear infinite;}
+@keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#002266,#0060cc,#00cfff,#ffffff);box-shadow:0 0 10px #00cfff;}
+.status-text{font-size:8px;color:rgba(0,160,220,0.5);letter-spacing:4px;margin-top:8px;min-height:12px;text-align:center;}
 
-/* corner decorations */
-.corner{position:fixed;width:55px;height:55px;z-index:20;}
-.corner svg{width:100%;height:100%;}
-.corner.tl{top:10px;left:10px;}.corner.tr{top:10px;right:10px;transform:scaleX(-1);}
-.corner.bl{bottom:10px;left:10px;transform:scaleY(-1);}.corner.br{bottom:10px;right:10px;transform:scale(-1);}
+/* SCANLINE OVERLAY */
+.scanlines{position:fixed;inset:0;z-index:9;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+
+/* VIGNETTE */
+.vignette{position:fixed;inset:0;z-index:8;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.7) 100%);}
 
 /* LOGIN */
-#login{display:none;}
-.glass{width:92%;max-width:420px;background:var(--card-bg);backdrop-filter:blur(28px);border:1px solid var(--border);border-radius:28px;padding:32px 28px;box-shadow:0 0 80px rgba(155,48,255,.16),inset 0 0 40px rgba(255,255,255,.01);position:relative;overflow:hidden;}
-.glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple),var(--pink),transparent);}
-.glass::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
-.gc{position:absolute;width:18px;height:18px;}
-.gc::before,.gc::after{content:'';position:absolute;background:var(--cyan);}
-.gc::before{width:100%;height:1.5px;top:0;left:0;}
-.gc::after{width:1.5px;height:100%;top:0;left:0;}
-.gc.tr{top:0;right:0;transform:rotate(90deg);}.gc.bl{bottom:0;left:0;transform:rotate(270deg);}.gc.br{bottom:0;right:0;transform:rotate(180deg);}
-.login-logo{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px;}
-.login-sub{font-size:11px;letter-spacing:3px;color:rgba(0,255,231,.45);text-align:center;margin-bottom:28px;font-family:'Share Tech Mono',monospace;}
-.inputBox{background:rgba(0,0,0,.55);border:1px solid rgba(155,48,255,.35);height:54px;border-radius:14px;display:flex;align-items:center;padding:0 18px;margin-bottom:14px;transition:border-color .3s,box-shadow .3s;}
-.inputBox:focus-within{border-color:var(--purple);box-shadow:0 0 20px rgba(155,48,255,.22);}
-.inputBox input{background:none;border:none;outline:none;color:white;width:100%;font-size:14px;font-family:'Share Tech Mono',monospace;letter-spacing:3px;}
-.inputBox input::placeholder{color:rgba(255,255,255,.25);font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
-.btn{height:52px;border:none;width:100%;border-radius:14px;font-size:13px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:3px;background:linear-gradient(90deg,#6a00ff,var(--pink));color:white;box-shadow:0 0 28px rgba(162,0,255,.32);cursor:pointer;position:relative;overflow:hidden;transition:transform .15s;}
-.btn::before{content:'';position:absolute;top:-50%;left:-60%;width:35%;height:200%;background:rgba(255,255,255,.12);transform:skewX(-20deg);animation:shine 4s infinite;}
-@keyframes shine{0%{left:-60%;}100%{left:150%;}}
-.btn:active{transform:scale(.97);}
+#loginScreen{background:rgba(0,0,0,0.97);display:none;}
+.login-outer{position:relative;padding:3px;}
+.login-outer::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#00cfff,#0040ff,#00cfff,#0040ff);animation:borderSpin 3s linear infinite;border-radius:2px;}
+@keyframes borderSpin{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.login-box{background:#000814;padding:44px 40px;width:330px;position:relative;}
+.login-corner{position:absolute;width:16px;height:16px;border-color:#00cfff;border-style:solid;box-shadow:0 0 8px #00cfff;}
+.lc-tl{top:0;left:0;border-width:2px 0 0 2px;}.lc-tr{top:0;right:0;border-width:2px 2px 0 0;}
+.lc-bl{bottom:0;left:0;border-width:0 0 2px 2px;}.lc-br{bottom:0;right:0;border-width:0 2px 2px 0;}
+.login-icon{width:50px;height:50px;border:2px solid rgba(0,207,255,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;}
+.login-icon::before{content:'';position:absolute;inset:-4px;border:1px solid rgba(0,207,255,0.1);}
+.lock-svg{width:22px;height:22px;fill:none;stroke:#00cfff;stroke-width:1.5;filter:drop-shadow(0 0 6px #00cfff);}
+.login-title{font-size:9px;letter-spacing:6px;color:rgba(0,207,255,0.5);text-align:center;margin-bottom:4px;}
+.login-logo{font-size:26px;font-weight:900;text-align:center;color:#fff;text-shadow:0 0 20px #00cfff,0 0 40px #0060ff;letter-spacing:5px;margin-bottom:28px;}
+.field-label{font-size:8px;letter-spacing:3px;color:rgba(0,207,255,0.4);margin-bottom:5px;}
+.input-wrap{position:relative;margin-bottom:20px;}
+.input-wrap input{width:100%;padding:12px 14px 12px 38px;background:rgba(0,30,60,0.4);border:1px solid rgba(0,207,255,0.15);border-bottom-color:rgba(0,207,255,0.4);color:#fff;font-family:'Courier New',monospace;font-size:13px;letter-spacing:2px;outline:none;transition:all 0.3s;}
+.input-wrap input:focus{border-color:rgba(0,207,255,0.5);background:rgba(0,40,80,0.3);box-shadow:0 0 20px rgba(0,207,255,0.1),inset 0 0 10px rgba(0,207,255,0.03);}
+.input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:rgba(0,207,255,0.4);}
+.btn-access{width:100%;padding:14px;background:transparent;border:1px solid rgba(0,207,255,0.5);color:#00cfff;font-family:'Courier New',monospace;font-size:11px;letter-spacing:6px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.4s;margin-top:4px;}
+.btn-access span{position:relative;z-index:1;}
+.btn-access::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.2),transparent);transition:left 0.5s;}
+.btn-access:hover{border-color:#00cfff;color:#fff;box-shadow:0 0 30px rgba(0,207,255,0.3),inset 0 0 20px rgba(0,207,255,0.05);}
+.btn-access:hover::before{left:100%;}
+.hint{font-size:8px;color:rgba(0,207,255,0.25);text-align:center;margin-top:16px;letter-spacing:2px;}
 
-/* PANEL */
-#panel{display:none;align-items:center;justify-content:flex-start;overflow-y:auto;padding:14px 0 24px;}
-#panel::-webkit-scrollbar{width:0;}
-.panel-inner{width:92%;max-width:450px;display:flex;flex-direction:column;gap:11px;}
-.panel-header{background:linear-gradient(135deg,rgba(15,0,35,.92),rgba(8,0,20,.92));border:1px solid rgba(155,48,255,.4);border-radius:22px;padding:18px 20px;position:relative;overflow:hidden;}
-.panel-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple),var(--pink),var(--cyan),transparent);}
-.ph-row{display:flex;justify-content:space-between;align-items:flex-start;}
-.panelTitle{font-family:'Orbitron',sans-serif;font-size:21px;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,#fff,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.online-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-family:'Share Tech Mono',monospace;}
-.dot-blink{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink .8s infinite alternate;}
-@keyframes blink{to{opacity:.2;}}
-.badge{display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(155,48,255,.1);border:1px solid rgba(155,48,255,.35);font-size:10px;color:var(--purple);letter-spacing:3px;font-family:'Orbitron',sans-serif;margin-top:6px;}
-.card{background:linear-gradient(135deg,rgba(12,0,26,.92),rgba(6,0,16,.92));border:1px solid var(--border);padding:16px 18px;border-radius:18px;position:relative;overflow:hidden;}
-.card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(155,48,255,.05),transparent 70%);pointer-events:none;}
-.card-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:4px;color:var(--cyan);opacity:.55;margin-bottom:13px;}
-.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;}
-.row:last-of-type{margin-bottom:0;}
-.label{font-size:15px;font-weight:600;letter-spacing:.4px;}
-.switch{width:52px;height:27px;background:rgba(40,0,60,.8);border:1px solid rgba(155,48,255,.28);border-radius:999px;position:relative;cursor:pointer;transition:all .3s;}
-.switch.on{background:rgba(100,0,160,.38);border-color:var(--purple);box-shadow:0 0 10px rgba(155,48,255,.28);}
-.switch::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#4a3a60;top:3px;left:4px;transition:all .3s;}
-.switch.on::after{transform:translateX(25px);background:var(--purple);box-shadow:0 0 12px var(--purple);}
-.val-row{display:flex;justify-content:space-between;align-items:center;}
-.value{font-size:15px;color:var(--purple);font-family:'Orbitron',sans-serif;font-weight:700;}
-.slider{width:100%;appearance:none;height:5px;border-radius:999px;background:linear-gradient(90deg,var(--purple) var(--pct,75%),rgba(255,255,255,.07) var(--pct,75%));outline:none;cursor:pointer;margin-top:11px;}
-.slider::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 0 14px var(--purple),0 0 5px var(--pink);cursor:pointer;}
-.monitor{margin-top:11px;height:132px;overflow-y:auto;background:rgba(0,0,0,.8);border-radius:13px;padding:13px;font-size:12px;color:var(--green);border:1px solid rgba(0,255,180,.08);font-family:'Share Tech Mono',monospace;line-height:1.75;position:relative;}
-.monitor::-webkit-scrollbar{width:3px;}
-.monitor::-webkit-scrollbar-thumb{background:var(--purple);border-radius:999px;}
-.injectBtn{margin-top:4px;}
-.ff-btn{background:linear-gradient(90deg,#d62000,#ff004c);box-shadow:0 0 28px rgba(255,0,60,.28);margin-top:10px;}
+/* MAIN */
+#mainScreen{display:none;flex-direction:column;height:100vh;width:100vw;position:fixed;inset:0;z-index:10;}
+.topbar{height:56px;background:rgba(0,4,12,0.95);border-bottom:1px solid rgba(0,207,255,0.15);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;}
+.topbar::after{content:'';position:absolute;top:56px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.3),transparent);}
+.tb-left{display:flex;align-items:center;gap:12px;}
+.tb-logo{font-size:18px;font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 0 15px #00cfff;}
+.tb-ver{font-size:7px;letter-spacing:2px;color:rgba(0,207,255,0.4);margin-top:2px;}
+.tb-sep{width:1px;height:28px;background:rgba(0,207,255,0.15);}
+.tb-right{display:flex;align-items:center;gap:12px;}
+.online-pill{display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:2px;color:rgba(0,255,136,0.8);background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);padding:4px 10px;}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#00ff88;box-shadow:0 0 8px #00ff88;animation:dotBlink 1.5s ease infinite;}
+@keyframes dotBlink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.tb-time{font-size:9px;letter-spacing:1px;color:rgba(0,207,255,0.4);}
 
-/* SENSI */
-.sensi-card{background:linear-gradient(135deg,rgba(0,8,20,.92),rgba(0,4,14,.92));border:1px solid rgba(0,255,231,.18);padding:16px 18px;border-radius:18px;position:relative;overflow:hidden;}
-.sensi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
-.sensi-card .card-title{color:var(--cyan);}
-.device-input-wrap{background:rgba(0,0,0,.6);border:1px solid rgba(0,255,231,.22);border-radius:11px;display:flex;align-items:center;padding:0 13px;height:46px;margin-bottom:9px;transition:all .3s;}
-.device-input-wrap:focus-within{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,231,.16);}
-.device-input-wrap input{background:none;border:none;outline:none;color:white;width:100%;font-size:14px;font-family:'Rajdhani',sans-serif;font-weight:500;}
-.device-input-wrap input::placeholder{color:rgba(255,255,255,.26);}
-.suggestions{display:none;background:rgba(2,0,14,.97);border:1px solid rgba(0,255,231,.18);border-radius:11px;overflow:hidden;margin-bottom:9px;}
-.sug-item{padding:9px 13px;font-size:14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s;display:flex;align-items:center;gap:9px;}
-.sug-item:last-child{border-bottom:none;}
-.sug-item:hover{background:rgba(0,255,231,.06);}
-.sug-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);flex-shrink:0;}
-.sug-label{flex:1;}
-.sug-tier{font-size:10px;color:var(--purple);font-family:'Share Tech Mono',monospace;}
-.sensi-result{display:none;background:rgba(0,255,231,.025);border:1px solid rgba(0,255,231,.12);border-radius:13px;padding:14px;}
-.sensi-device-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--cyan);letter-spacing:2px;margin-bottom:12px;}
-.sensi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
-.sensi-item{background:rgba(0,0,0,.5);border:1px solid rgba(155,48,255,.16);border-radius:9px;padding:9px 11px;}
-.sensi-item-label{font-size:9px;color:rgba(255,255,255,.38);letter-spacing:.5px;margin-bottom:4px;}
-.sensi-item-val{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--purple);}
-.sensi-tip{margin-top:10px;font-size:12px;color:rgba(255,255,255,.38);line-height:1.6;border-top:1px solid rgba(255,255,255,.04);padding-top:9px;}
+.main-scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+.main-scroll::-webkit-scrollbar{width:2px;}
+.main-scroll::-webkit-scrollbar-thumb{background:rgba(0,207,255,0.2);}
 
-/* FF FULLSCREEN */
-#ffLoader{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;}
-.ff-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 30% 40%,rgba(255,40,0,.14),transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(255,100,0,.09),transparent 60%),#000;}
-.ff-grid{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(255,60,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,0,.05) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 3s linear infinite;}
-@keyframes gridMove{to{background-position:0 40px;}}
-.ff-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
-.ff-title{font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;letter-spacing:8px;background:linear-gradient(90deg,#ff6a00,#ff0040,#ff6a00);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:ffGlow 2s ease-in-out infinite alternate,ffShift 3s linear infinite;margin-bottom:6px;}
-@keyframes ffGlow{from{filter:drop-shadow(0 0 18px rgba(255,80,0,.8));}to{filter:drop-shadow(0 0 36px rgba(255,0,60,.9));}}
-@keyframes ffShift{to{background-position:200%;}}
-.ff-sub{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:rgba(255,120,0,.65);margin-bottom:38px;}
-.ff-ring-wrap{position:relative;width:136px;height:136px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;}
-.ff-ring-outer{position:absolute;width:136px;height:136px;border:2px solid rgba(255,60,0,.28);border-top-color:#ff4400;border-radius:50%;animation:hexSpin 1.1s linear infinite;box-shadow:0 0 18px rgba(255,68,0,.4);}
-.ff-ring-mid{position:absolute;width:96px;height:96px;border:2px solid rgba(255,0,60,.2);border-bottom-color:#ff0040;border-radius:50%;animation:hexSpin 2s linear infinite reverse;}
-.ff-pct-big{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;color:#ff6600;}
-.ff-progress-wrap{width:300px;height:5px;background:rgba(255,255,255,.05);border-radius:999px;overflow:hidden;margin-bottom:13px;}
-.ff-progress-fill{height:100%;background:linear-gradient(90deg,#ff4400,#ff0060);border-radius:999px;box-shadow:0 0 12px #ff4400;width:0%;transition:width .28s ease;}
-.ff-status{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,120,0,.55);letter-spacing:2px;min-height:15px;}
+.card{background:rgba(0,5,18,0.9);border:1px solid rgba(0,207,255,0.12);padding:18px;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:30px;right:30px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.6),transparent);}
+.card::after{content:'';position:absolute;bottom:0;left:30px;right:30px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.1),transparent);}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.card-title{font-size:9px;letter-spacing:5px;color:rgba(0,207,255,0.7);display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:2px;height:2px;background:#00cfff;box-shadow:0 0 5px #00cfff;display:inline-block;}
+.card-tag{font-size:7px;letter-spacing:2px;color:rgba(0,207,255,0.3);background:rgba(0,207,255,0.05);border:1px solid rgba(0,207,255,0.1);padding:2px 8px;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.stat-box{background:rgba(0,20,50,0.5);border:1px solid rgba(0,207,255,0.1);padding:12px 8px;text-align:center;position:relative;overflow:hidden;}
+.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(0,207,255,0.3);}
+.stat-val{font-size:20px;font-weight:900;color:#00cfff;text-shadow:0 0 15px #00cfff;letter-spacing:1px;line-height:1;}
+.stat-key{font-size:7px;color:rgba(0,207,255,0.4);letter-spacing:2px;margin-top:5px;}
+.stat-unit{font-size:8px;color:rgba(0,207,255,0.3);}
+
+.info-lines{display:flex;flex-direction:column;gap:0;}
+.info-line{font-size:9px;letter-spacing:2px;color:rgba(0,200,120,0.5);padding:5px 0;border-bottom:1px solid rgba(0,207,255,0.05);display:flex;align-items:center;gap:8px;}
+.info-line::before{content:'';width:4px;height:4px;background:rgba(0,207,255,0.4);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
+
+/* Toggles */
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,207,255,0.06);}
+.toggle-row:last-of-type{border-bottom:none;}
+.toggle-left{display:flex;align-items:center;gap:10px;}
+.toggle-icon{font-size:12px;color:rgba(0,207,255,0.3);}
+.toggle-label{font-size:10px;color:rgba(180,220,255,0.7);letter-spacing:1.5px;}
+.toggle-switch{position:relative;width:44px;height:22px;cursor:pointer;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:rgba(0,20,50,0.8);border:1px solid rgba(0,207,255,0.2);transition:all 0.3s;border-radius:0;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:rgba(0,80,120,0.8);transition:all 0.3s;}
+.toggle-switch input:checked + .toggle-slider{background:rgba(0,50,100,0.5);border-color:rgba(0,207,255,0.6);box-shadow:0 0 12px rgba(0,207,255,0.2),inset 0 0 8px rgba(0,207,255,0.05);}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(22px);background:#00cfff;box-shadow:0 0 10px #00cfff,0 0 20px rgba(0,207,255,0.5);}
+
+/* Sliders */
+.slider-section{margin-top:14px;display:flex;flex-direction:column;gap:12px;}
+.slider-row{background:rgba(0,15,40,0.4);border:1px solid rgba(0,207,255,0.08);padding:12px 14px;}
+.slider-info{display:flex;justify-content:space-between;margin-bottom:8px;}
+.slider-name{font-size:9px;letter-spacing:3px;color:rgba(0,207,255,0.6);}
+.slider-display{font-size:14px;font-weight:900;color:#00cfff;text-shadow:0 0 10px #00cfff;letter-spacing:1px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:rgba(0,207,255,0.1);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#000;border:2px solid #00cfff;box-shadow:0 0 10px #00cfff;cursor:pointer;}
+
+/* Monitor */
+.monitor{height:160px;overflow-y:auto;background:#000408;color:#00ff88;padding:12px;font-size:9px;font-family:'Courier New',monospace;letter-spacing:1px;border:1px solid rgba(0,255,136,0.1);line-height:2;}
+.monitor::-webkit-scrollbar{width:2px;}
+.monitor::-webkit-scrollbar-thumb{background:rgba(0,255,136,0.2);}
+.ml{display:flex;gap:8px;}
+.ml .ts{color:rgba(0,255,136,0.25);}
+
+/* Buttons */
+.cyber-btn{width:100%;padding:14px;background:transparent;border:1px solid rgba(0,207,255,0.3);color:#00cfff;font-family:'Courier New',monospace;font-size:10px;letter-spacing:5px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.cyber-btn .btn-icon{font-size:14px;}
+.cyber-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,207,255,0.1),transparent);transition:left 0.5s;}
+.cyber-btn:hover{border-color:#00cfff;color:#fff;box-shadow:0 0 25px rgba(0,207,255,0.2),inset 0 0 15px rgba(0,207,255,0.04);}
+.cyber-btn:hover::before{left:100%;}
+.cyber-btn.launch{border-color:rgba(0,180,255,0.4);background:rgba(0,20,50,0.3);}
+.cyber-btn.launch:hover{border-color:#00cfff;background:rgba(0,30,70,0.5);box-shadow:0 0 40px rgba(0,150,255,0.3);}
+
+/* Launch */
+.launch-track{height:2px;background:rgba(0,207,255,0.08);margin:12px 0;position:relative;}
+.launch-fill{height:100%;width:0%;background:linear-gradient(90deg,#002266,#0060cc,#00cfff,#ffffff);box-shadow:0 0 10px #00cfff;transition:width 0.06s;}
+.launch-pct{font-size:8px;color:rgba(0,207,255,0.4);letter-spacing:2px;text-align:right;margin-top:4px;min-height:12px;}
 </style>
 </head>
 <body>
 
-<canvas id="bgCanvas"></canvas>
+<canvas id="bg"></canvas>
+<canvas id="matrixCanvas"></canvas>
 <div class="scanlines"></div>
-
-<div class="corner tl"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/><path d="M0 35 L0 0 L35 0" stroke="#00ffe7" stroke-width=".8" opacity=".4"/></svg></div>
-<div class="corner tr"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
-<div class="corner bl"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
-<div class="corner br"><svg viewBox="0 0 55 55" fill="none"><path d="M0 55 L0 0 L55 0" stroke="#9b30ff" stroke-width="1.5" opacity=".65"/></svg></div>
+<div class="vignette"></div>
 
 <!-- LOADING -->
-<div id="loading" class="screen">
-  <div class="load-wrap">
-    <div class="hex-container">
-      <div class="hex-ring"><svg viewBox="0 0 180 180" fill="none"><polygon points="90,6 168,48 168,132 90,174 12,132 12,48" stroke="url(#lg1)" stroke-width="2" fill="none" stroke-dasharray="10 5"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="180" y2="180"><stop offset="0%" stop-color="#9b30ff"/><stop offset="50%" stop-color="#ff2cf7"/><stop offset="100%" stop-color="#00ffe7"/></linearGradient></defs></svg></div>
-      <div class="hex-ring2"><svg viewBox="0 0 128 128" fill="none"><polygon points="64,4 120,34 120,94 64,124 8,94 8,34" stroke="#00ffe7" stroke-width="1.5" fill="none" stroke-dasharray="6 10"/></svg></div>
-      <div class="hex-ring3"><svg viewBox="0 0 80 80" fill="none"><polygon points="40,3 74,22 74,58 40,77 6,58 6,22" stroke="#ff2cf7" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/></svg></div>
-      <div class="load-logo">NEXOR</div>
-    </div>
-    <div class="load-bars">
-      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
-      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
-      <div class="load-bar"></div><div class="load-bar"></div><div class="load-bar"></div>
-    </div>
-    <div class="load-status" id="loadStatus">SCANNING SYSTEM...</div>
-    <div class="load-percent" id="loadPct">0%</div>
-    <div class="load-progress"><div class="load-progress-fill" id="loadFill"></div></div>
+<div class="screen" id="loadingScreen">
+  <div class="nxr-logo">NXR</div>
+  <div class="nxr-sub">PREMIUM SYSTEM v3.0 · ULTRA</div>
+  <div class="scan-line"></div>
+  <div class="hex-grid">
+    <div class="hex"></div><div class="hex"></div><div class="hex"></div>
+    <div class="hex"></div><div class="hex"></div><div class="hex"></div>
+    <div class="hex"></div><div class="hex"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span id="statusTxt">LOADING KERNEL...</span><span id="pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="bar"></div></div>
   </div>
 </div>
 
 <!-- LOGIN -->
-<div id="login" class="screen">
-  <div class="glass">
-    <div class="gc tr"></div><div class="gc bl"></div><div class="gc br"></div>
-    <div class="login-logo">NEXOR</div>
-    <div class="login-sub">PREMIUM CYBER EDITION v3.0</div>
-    <div class="inputBox"><input type="text" id="key" placeholder="ENTER PREMIUM KEY" autocomplete="off"></div>
-    <button class="btn" onclick="login()">ACCESS SYSTEM</button>
+<div class="screen" id="loginScreen">
+  <div class="login-outer">
+    <div class="login-box">
+      <div class="login-corner lc-tl"></div><div class="login-corner lc-tr"></div>
+      <div class="login-corner lc-bl"></div><div class="login-corner lc-br"></div>
+      <div class="login-icon">
+        <svg class="lock-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="#00cfff"/></svg>
+      </div>
+      <div class="login-title">SECURE ACCESS TERMINAL</div>
+      <div class="login-logo">NXR PREMIUM</div>
+      <div class="field-label">ACCESS KEY</div>
+      <div class="input-wrap">
+        <span class="input-icon">⬡</span>
+        <input type="password" id="keyInput" placeholder="ENTER ACCESS KEY" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <button class="btn-access" onclick="login()"><span>[ INITIALIZE ACCESS ]</span></button>
+      <div class="hint">KEY: NXR Premium1</div>
+    </div>
   </div>
 </div>
 
-<!-- PANEL -->
-<div id="panel" class="screen" style="align-items:center;justify-content:flex-start;overflow-y:auto;padding:14px 0 28px;">
-  <div class="panel-inner">
-
-    <div class="panel-header">
-      <div class="ph-row">
-        <div class="panelTitle">NEXOR TOOLS</div>
-        <div class="online-dot"><div class="dot-blink"></div>ONLINE</div>
+<!-- MAIN -->
+<div id="mainScreen">
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="tb-logo">NXR PREMIUM</div>
+        <div class="tb-ver">v3.0 ULTRA · DEV RANZY NXR</div>
       </div>
-      <div class="badge">⚡ PREMIUM 150%</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">◈ CORE MODULES</div>
-      <div class="row"><div class="label">Max Responsive Touch</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="row"><div class="label">Sensitivity Optimized</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-      <div class="row"><div class="label">Anti Lag Engine</div><div class="switch" onclick="this.classList.toggle('on')"></div></div>
-      <div class="row"><div class="label">Aim Stabilizer Pro</div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">◈ POINTER SETTINGS</div>
-      <div class="val-row"><div class="label">Kecepatan Penunjuk</div><div class="value" id="pVal">75</div></div>
-      <input type="range" min="0" max="100" value="75" class="slider" id="pointer">
-      <div class="val-row" style="margin-top:16px;"><div class="label">Responsive Drag</div><div class="value" id="dVal">6</div></div>
-      <input type="range" min="1" max="8" value="6" class="slider" id="drag">
-      <div class="val-row" style="margin-top:16px;"><div class="label">Touch Boost Level</div><div class="value" id="tbVal">4</div></div>
-      <input type="range" min="1" max="10" value="4" class="slider" id="touchboost">
-    </div>
-
-    <!-- SENSI RECOMMENDER -->
-    <div class="sensi-card">
-      <div class="card-title">◈ REKOMENDASI SENSI FREE FIRE — IPHONE</div>
-      <div class="device-input-wrap">
-        <input type="text" id="deviceInput" placeholder="Ketik nama device (cth: iPhone 13 Pro)" autocomplete="off" oninput="filterDevices(this.value)" onfocus="filterDevices(this.value)">
+      <div class="tb-sep"></div>
+      <div class="online-pill">
+        <div class="online-dot"></div>ONLINE
       </div>
-      <div class="suggestions" id="suggestions"></div>
-      <div class="sensi-result" id="sensiResult">
-        <div class="sensi-device-name" id="sensiDeviceName">—</div>
-        <div class="sensi-grid">
-          <div class="sensi-item"><div class="sensi-item-label">GENERAL</div><div class="sensi-item-val" id="sGeneral">—</div></div>
-          <div class="sensi-item"><div class="sensi-item-label">NO SCOPE</div><div class="sensi-item-val" id="sNoScope">—</div></div>
-          <div class="sensi-item"><div class="sensi-item-label">RED DOT</div><div class="sensi-item-val" id="sRedDot">—</div></div>
-          <div class="sensi-item"><div class="sensi-item-label">2x SCOPE</div><div class="sensi-item-val" id="s2x">—</div></div>
-          <div class="sensi-item"><div class="sensi-item-label">4x SCOPE</div><div class="sensi-item-val" id="s4x">—</div></div>
-          <div class="sensi-item"><div class="sensi-item-label">SNIPER</div><div class="sensi-item-val" id="sSniper">—</div></div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-time" id="clock">00:00:00</div>
+    </div>
+  </div>
+
+  <div class="main-scroll">
+
+    <!-- Status -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">SYSTEM STATUS</div>
+        <div class="card-tag">ACTIVE</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-val" id="pingVal">12</div><div class="stat-unit">ms</div><div class="stat-key">PING</div></div>
+        <div class="stat-box"><div class="stat-val" id="fpsVal">60</div><div class="stat-unit">hz</div><div class="stat-key">FPS</div></div>
+        <div class="stat-box"><div class="stat-val" id="stabVal">98</div><div class="stat-unit">%</div><div class="stat-key">STABILITY</div></div>
+        <div class="stat-box"><div class="stat-val" style="font-size:13px;margin-top:4px">SEC</div><div class="stat-unit">v2</div><div class="stat-key">ENCRYPT</div></div>
+      </div>
+      <div class="info-lines">
+        <div class="info-line">MODULE INTEGRITY VERIFIED</div>
+        <div class="info-line">ENCRYPTION LAYER ACTIVE</div>
+        <div class="info-line">ANTI-DETECTION ONLINE</div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">FEATURE CONFIG</div>
+        <div class="card-tag">5 MODULES</div>
+      </div>
+      <div class="toggle-row"><div class="toggle-left"><span class="toggle-icon">⊕</span><span class="toggle-label">STABILIZER AIM</span></div><label class="toggle-switch"><input type="checkbox" checked onchange="playClick(this)"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><div class="toggle-left"><span class="toggle-icon">⊕</span><span class="toggle-label">FIX RECOIL</span></div><label class="toggle-switch"><input type="checkbox" onchange="playClick(this)"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><div class="toggle-left"><span class="toggle-icon">⊕</span><span class="toggle-label">EASY DRAG</span></div><label class="toggle-switch"><input type="checkbox" checked onchange="playClick(this)"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><div class="toggle-left"><span class="toggle-icon">⊕</span><span class="toggle-label">CLEANER CACHE</span></div><label class="toggle-switch"><input type="checkbox" onchange="playClick(this)"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><div class="toggle-left"><span class="toggle-icon">⊕</span><span class="toggle-label">MAX RESPONSIVE TOUCH</span></div><label class="toggle-switch"><input type="checkbox" checked onchange="playClick(this)"><span class="toggle-slider"></span></label></div>
+      <div class="slider-section">
+        <div class="slider-row">
+          <div class="slider-info"><span class="slider-name">DRAG BOOST</span><span class="slider-display" id="dv1">5</span></div>
+          <input type="range" min="1" max="10" value="5" oninput="document.getElementById('dv1').textContent=this.value">
         </div>
-        <div class="sensi-tip" id="sensiTip"></div>
+        <div class="slider-row">
+          <div class="slider-info"><span class="slider-name">DRAG HEADSHOOT</span><span class="slider-display" id="dv2">3</span></div>
+          <input type="range" min="1" max="7" value="3" oninput="document.getElementById('dv2').textContent=this.value">
+        </div>
       </div>
     </div>
 
+    <!-- Monitor -->
     <div class="card">
-      <div class="card-title">◈ INJECTION CONTROL</div>
-      <button class="btn injectBtn" onclick="inject()">⚡ INJECT PREMIUM</button>
-      <button class="btn ff-btn" onclick="launchFF()">🔥 LAUNCH FREE FIRE</button>
-      <div class="monitor" id="monitor">[ NEXOR v3.0 ] System ready. Awaiting injection command...</div>
+      <div class="card-header">
+        <div class="card-title">PROCESS MONITOR</div>
+        <div class="card-tag">TERMINAL</div>
+      </div>
+      <div class="monitor" id="monitor">
+        <div class="ml"><span class="ts">[BOOT]</span><span style="color:#00cfff">SYSTEM READY · AWAITING COMMAND...</span></div>
+      </div>
+      <button class="cyber-btn" onclick="inject()"><span class="btn-icon">⬡</span><span>INJECT MODULE</span></button>
     </div>
 
-  </div>
-</div>
-
-<!-- FF FULLSCREEN LOADER -->
-<div id="ffLoader">
-  <div class="ff-bg"></div>
-  <div class="ff-grid"></div>
-  <div class="ff-content">
-    <div class="ff-title">FREE FIRE</div>
-    <div class="ff-sub">NEXOR PREMIUM LAUNCH</div>
-    <div class="ff-ring-wrap">
-      <div class="ff-ring-outer"></div>
-      <div class="ff-ring-mid"></div>
-      <div class="ff-pct-big" id="ffPct">0%</div>
+    <!-- Launch -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">LAUNCH SEQUENCE</div>
+        <div class="card-tag">READY</div>
+      </div>
+      <div class="launch-track"><div class="launch-fill" id="launchBar"></div></div>
+      <div class="launch-pct" id="launchPct"></div>
+      <button class="cyber-btn launch" onclick="launchFF()"><span class="btn-icon">▶</span><span>LAUNCH FREE FIRE</span></button>
     </div>
-    <div class="ff-progress-wrap"><div class="ff-progress-fill" id="ffFill"></div></div>
-    <div class="ff-status" id="ffStatus">INITIALIZING...</div>
+
   </div>
 </div>
 
 <script>
-/* ─── PARTICLE NETWORK ─── */
-const canvas=document.getElementById('bgCanvas');
-const ctx=canvas.getContext('2d');
-let W,H,pts=[];
-function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-resize();window.addEventListener('resize',resize);
-class Pt{
-  constructor(){this.reset(true);}
-  reset(init){this.x=Math.random()*W;this.y=init?Math.random()*H:Math.random()<.5?-5:H+5;this.vx=(Math.random()-.5)*.5;this.vy=(Math.random()-.5)*.5;this.r=Math.random()*1.8+.7;this.hue=Math.random()<.5?270:185;}
-  update(){this.x+=this.vx;this.y+=this.vy;if(this.x<-10||this.x>W+10||this.y<-10||this.y>H+10)this.reset(false);}
+// ─── AUDIO ENGINE ─────────────────────────────────────────────────────────────
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+function playClick(el) {
+  const on = el.checked;
+  const osc = AC.createOscillator();
+  const gain = AC.createGain();
+  osc.connect(gain);
+  gain.connect(AC.destination);
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(on ? 1200 : 600, AC.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(on ? 2400 : 300, AC.currentTime + 0.06);
+  gain.gain.setValueAtTime(0.15, AC.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.08);
+  osc.start(AC.currentTime);
+  osc.stop(AC.currentTime + 0.08);
 }
-for(let i=0;i<95;i++)pts.push(new Pt());
-const mouse={x:-9999,y:-9999};
-window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-window.addEventListener('touchmove',e=>{mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;},{passive:true});
-function drawNet(){
-  ctx.clearRect(0,0,W,H);
-  const all=[...pts,mouse];
-  for(let i=0;i<pts.length;i++){
-    for(let j=i+1;j<all.length;j++){
-      const dx=pts[i].x-all[j].x,dy=pts[i].y-all[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      const maxD=j>=pts.length?165:108;
-      if(d<maxD){
-        const a=(1-d/maxD)*.52;
-        const g=ctx.createLinearGradient(pts[i].x,pts[i].y,all[j].x,all[j].y);
-        g.addColorStop(0,`hsla(${pts[i].hue},100%,65%,${a})`);
-        g.addColorStop(1,`hsla(185,100%,60%,${a*.45})`);
-        ctx.strokeStyle=g;ctx.lineWidth=.75;
-        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(all[j].x,all[j].y);ctx.stroke();
+
+function playInjectSound(step, total) {
+  const osc = AC.createOscillator();
+  const gain = AC.createGain();
+  const filter = AC.createBiquadFilter();
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(AC.destination);
+  filter.type = 'bandpass';
+  filter.frequency.value = 800;
+  osc.type = step % 2 === 0 ? 'sawtooth' : 'square';
+  const baseFreq = 300 + (step / total) * 900;
+  osc.frequency.setValueAtTime(baseFreq, AC.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, AC.currentTime + 0.05);
+  gain.gain.setValueAtTime(0.08, AC.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.1);
+  osc.start(AC.currentTime);
+  osc.stop(AC.currentTime + 0.1);
+}
+
+function playInjectComplete() {
+  [0, 0.1, 0.2, 0.35].forEach((t, i) => {
+    const osc = AC.createOscillator();
+    const gain = AC.createGain();
+    osc.connect(gain); gain.connect(AC.destination);
+    osc.type = 'sine';
+    const freqs = [440, 550, 660, 880];
+    osc.frequency.value = freqs[i];
+    gain.gain.setValueAtTime(0, AC.currentTime + t);
+    gain.gain.linearRampToValueAtTime(0.12, AC.currentTime + t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t + 0.2);
+    osc.start(AC.currentTime + t);
+    osc.stop(AC.currentTime + t + 0.25);
+  });
+}
+
+function playLaunchSound(progress) {
+  const osc = AC.createOscillator();
+  const gain = AC.createGain();
+  osc.connect(gain); gain.connect(AC.destination);
+  osc.type = 'sawtooth';
+  const freq = 80 + (progress / 100) * 600;
+  osc.frequency.setValueAtTime(freq, AC.currentTime);
+  gain.gain.setValueAtTime(0.06, AC.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.04);
+  osc.start(AC.currentTime);
+  osc.stop(AC.currentTime + 0.04);
+}
+
+function playLaunchComplete() {
+  const notes = [220, 330, 440, 550, 660, 880, 1100, 1320];
+  notes.forEach((freq, i) => {
+    const osc = AC.createOscillator();
+    const gain = AC.createGain();
+    osc.connect(gain); gain.connect(AC.destination);
+    osc.type = i > 4 ? 'sine' : 'sawtooth';
+    osc.frequency.setValueAtTime(freq, AC.currentTime + i * 0.05);
+    gain.gain.setValueAtTime(0, AC.currentTime + i * 0.05);
+    gain.gain.linearRampToValueAtTime(0.1, AC.currentTime + i * 0.05 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + i * 0.05 + 0.3);
+    osc.start(AC.currentTime + i * 0.05);
+    osc.stop(AC.currentTime + i * 0.05 + 0.35);
+  });
+}
+
+// Unlock AudioContext on first interaction
+document.addEventListener('click', () => { if (AC.state === 'suspended') AC.resume(); }, { once: true });
+
+// ─── MATRIX RAIN ──────────────────────────────────────────────────────────────
+const mc = document.getElementById('matrixCanvas');
+const mx = mc.getContext('2d');
+mc.width = window.innerWidth; mc.height = window.innerHeight;
+const cols = Math.floor(mc.width / 14);
+const drops = Array(cols).fill(1);
+const chars = 'アイウエオカキクケコサシスセソタチツ01NXR10アBCDEF'.split('');
+function drawMatrix() {
+  mx.fillStyle = 'rgba(0,0,0,0.045)';
+  mx.fillRect(0, 0, mc.width, mc.height);
+  mx.font = '12px Courier New';
+  for (let i = 0; i < drops.length; i++) {
+    const t = chars[Math.floor(Math.random() * chars.length)];
+    const alpha = Math.random() > 0.95 ? 0.9 : 0.3;
+    mx.fillStyle = `rgba(0,207,255,${alpha})`;
+    mx.fillText(t, i * 14, drops[i] * 14);
+    if (drops[i] * 14 > mc.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+// ─── PARTICLES ────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const particles = [];
+for (let i = 0; i < 90; i++) {
+  particles.push({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    vx: (Math.random() - .5) * 0.6, vy: (Math.random() - .5) * 0.6,
+    r: Math.random() * 2 + 0.4, alpha: Math.random() * 0.4 + 0.2
+  });
+}
+function drawBg() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const p of particles) {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,207,255,${p.alpha})`;
+    ctx.shadowColor = '#00cfff'; ctx.shadowBlur = 8;
+    ctx.fill(); ctx.shadowBlur = 0;
+    for (const q of particles) {
+      const dx = p.x - q.x, dy = p.y - q.y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 90) {
+        ctx.strokeStyle = `rgba(0,130,200,${(1 - d / 90) * 0.12})`;
+        ctx.lineWidth = 0.4; ctx.beginPath();
+        ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
       }
     }
   }
-  pts.forEach(p=>{
-    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle=`hsla(${p.hue},100%,70%,.88)`;
-    ctx.shadowColor=`hsl(${p.hue},100%,60%)`;ctx.shadowBlur=9;
-    ctx.fill();ctx.shadowBlur=0;p.update();
-  });
-  requestAnimationFrame(drawNet);
+  requestAnimationFrame(drawBg);
 }
-drawNet();
+drawBg();
 
-/* ─── LOADING ─── */
-const loadStatuses=['SCANNING SYSTEM...','VERIFYING LICENSE...','LOADING MODULES...','APPLYING PATCHES...','CALIBRATING ENGINE...','FINALIZING SETUP...'];
-let lpct=0,lsi=0;
-const lFill=document.getElementById('loadFill'),lPct=document.getElementById('loadPct'),lStat=document.getElementById('loadStatus');
-const lInt=setInterval(()=>{
-  lpct+=Math.random()*3.5+1.2;
-  if(lpct>=100){lpct=100;clearInterval(lInt);}
-  lFill.style.width=lpct+'%';lPct.textContent=Math.floor(lpct)+'%';
-  const si=Math.floor(lpct/17);
-  if(si!==lsi&&si<loadStatuses.length){lsi=si;lStat.textContent=loadStatuses[si];}
-},130);
-setTimeout(()=>{document.getElementById('loading').style.display='none';document.getElementById('login').style.display='flex';},4400);
-
-/* ─── LOGIN ─── */
-function login(){
-  const k=document.getElementById('key').value;
-  if(k.length>0){document.getElementById('login').style.display='none';document.getElementById('panel').style.display='flex';}
-}
-document.getElementById('key').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
-
-/* ─── SLIDERS ─── */
-function setSlider(id,valId){
-  const el=document.getElementById(id);
-  el.oninput=function(){
-    const p=(this.value-this.min)/(this.max-this.min)*100;
-    this.style.setProperty('--pct',p+'%');
-    document.getElementById(valId).textContent=this.value;
-  };
-  const p=(el.value-el.min)/(el.max-el.min)*100;
-  el.style.setProperty('--pct',p+'%');
-}
-setSlider('pointer','pVal');setSlider('drag','dVal');setSlider('touchboost','tbVal');
-
-/* ─── INJECT (LONG ~6 sec) ─── */
-const injectLogs=[
-  {t:0,   c:'#6dffb3', m:'[SYS] Booting Nexor Premium Engine v3.0...'},
-  {t:280, c:'#6dffb3', m:'[SYS] Establishing secure channel...'},
-  {t:580, c:'#6dffb3', m:'[NET] Handshake with premium server... OK'},
-  {t:860, c:'#6dffb3', m:'[NET] License token verified ✓'},
-  {t:1100,c:'#6dffb3', m:'[MOD] Loading touch_optimizer.dll...'},
-  {t:1340,c:'#6dffb3', m:'[MOD] Loading aim_stabilizer_pro.dll...'},
-  {t:1560,c:'#6dffb3', m:'[MOD] Loading overdrag_engine.dll...'},
-  {t:1780,c:'#6dffb3', m:'[MOD] Loading visual_layer_x.dll...'},
-  {t:2000,c:'#6dffb3', m:'[MOD] Loading anti_lag_core.dll...'},
-  {t:2240,c:'#6dffb3', m:'[MOD] Loading pointer_enhancer.dll...'},
-  {t:2460,c:'#6dffb3', m:'[OPT] Calibrating touch response matrix...'},
-  {t:2700,c:'#6dffb3', m:'[OPT] Applying sensitivity curve override...'},
-  {t:2940,c:'#6dffb3', m:'[OPT] Setting pointer acceleration: PREMIUM'},
-  {t:3180,c:'#6dffb3', m:'[OPT] Overdrag coefficient: OPTIMIZED'},
-  {t:3420,c:'#ff9933', m:'[INJ] Scanning target process...'},
-  {t:3680,c:'#ff9933', m:'[INJ] Target located: com.dts.freefireth'},
-  {t:3920,c:'#ff9933', m:'[INJ] Attaching to process memory...'},
-  {t:4200,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████ 25%'},
-  {t:4460,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████ 50%'},
-  {t:4720,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████████ 75%'},
-  {t:4980,c:'#ff9933', m:'[INJ] Writing aim assist layer... ████████████████ 100%'},
-  {t:5220,c:'#ff9933', m:'[INJ] Visual enhancement layer active...'},
-  {t:5460,c:'#ffd700', m:'[FIN] Running post-injection integrity check...'},
-  {t:5700,c:'#ffd700', m:'[FIN] All modules: PASS ✓'},
-  {t:5940,c:'#ffd700', m:'[FIN] Performance boost: +150% ACTIVE'},
-  {t:6200,c:'#ff2cf7', m:'[✔✔] NEXOR PREMIUM INJECTION COMPLETE ✔✔'},
+// ─── LOADING ──────────────────────────────────────────────────────────────────
+const statuses = [
+  'LOADING KERNEL...','INIT MEMORY MAP...','SCAN MODULES...',
+  'INJECT LIBS...','CONFIG TOUCH ENGINE...','SYNC MATRIX GRID...',
+  'VERIFY LICENSE KEY...','BUILD UI LAYER...','ONLINE!'
 ];
-function inject(){
-  const monitor=document.getElementById('monitor');
-  monitor.innerHTML='';
-  injectLogs.forEach(({t,c,m})=>{
-    setTimeout(()=>{
-      monitor.innerHTML+=`<span style="color:${c}">${m}</span><br>`;
-      monitor.scrollTop=monitor.scrollHeight;
-    },t);
-  });
+let prog = 0;
+const barEl = document.getElementById('bar');
+const pctEl = document.getElementById('pct');
+const stEl = document.getElementById('statusTxt');
+const ldi = setInterval(() => {
+  prog++;
+  barEl.style.width = prog + '%';
+  pctEl.textContent = prog + '%';
+  stEl.textContent = statuses[Math.floor(prog / 100 * (statuses.length - 1))];
+  if (prog >= 100) {
+    clearInterval(ldi);
+    stEl.textContent = 'ONLINE!';
+    setTimeout(() => {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }, 500);
+  }
+}, 35);
+
+// ─── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const d = new Date();
+  document.getElementById('clock').textContent =
+    d.getHours().toString().padStart(2,'0') + ':' +
+    d.getMinutes().toString().padStart(2,'0') + ':' +
+    d.getSeconds().toString().padStart(2,'0');
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+function login() {
+  if (AC.state === 'suspended') AC.resume();
+  const k = document.getElementById('keyInput').value;
+  if (k === 'NXR Premium1') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'flex';
+    startStats();
+  } else {
+    const inp = document.getElementById('keyInput');
+    inp.style.borderColor = 'rgba(255,50,80,0.8)';
+    inp.style.boxShadow = '0 0 20px rgba(255,50,80,0.2)';
+    inp.value = '';
+    inp.placeholder = '[ ACCESS DENIED ]';
+    // error sound
+    const osc = AC.createOscillator();
+    const g = AC.createGain();
+    osc.connect(g); g.connect(AC.destination);
+    osc.type = 'sawtooth'; osc.frequency.value = 120;
+    osc.frequency.exponentialRampToValueAtTime(60, AC.currentTime + 0.3);
+    g.gain.setValueAtTime(0.15, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.4);
+    osc.start(AC.currentTime); osc.stop(AC.currentTime + 0.4);
+    setTimeout(() => {
+      inp.style.borderColor = 'rgba(0,207,255,0.15)';
+      inp.style.boxShadow = '';
+      inp.placeholder = 'ENTER ACCESS KEY';
+    }, 1500);
+  }
 }
 
-/* ─── FF LOADER ─── */
-const ffStats=['INITIALIZING ENGINE...','LOADING ASSETS...','VERIFYING ACCOUNT...','APPLYING NEXOR MODS...','CALIBRATING AIM ASSIST...','CONNECTING TO SERVER...','SYNCING PLAYER DATA...','LOADING MAP RESOURCES...','OPTIMIZING GRAPHICS...','GET READY...'];
-function launchFF(){
-  const loader=document.getElementById('ffLoader');
-  loader.style.display='flex';
-  const fill=document.getElementById('ffFill'),pct=document.getElementById('ffPct'),stat=document.getElementById('ffStatus');
-  let p=0,si=0;
-  const int=setInterval(()=>{
-    p+=Math.random()*2.2+.6;
-    if(p>=100){
-      p=100;clearInterval(int);
-      pct.textContent='100%';fill.style.width='100%';
-      stat.textContent='LAUNCHING... GET READY!';
-      setTimeout(()=>{loader.style.display='none';window.location.href='freefire://';},1400);
+function startStats() {
+  setInterval(() => {
+    document.getElementById('pingVal').textContent = Math.floor(Math.random() * 14 + 8);
+    document.getElementById('fpsVal').textContent = Math.floor(Math.random() * 4 + 58);
+    document.getElementById('stabVal').textContent = Math.floor(Math.random() * 3 + 97);
+  }, 1800);
+}
+
+// ─── INJECT ───────────────────────────────────────────────────────────────────
+function inject() {
+  if (AC.state === 'suspended') AC.resume();
+  const m = document.getElementById('monitor');
+  m.innerHTML = '';
+  const lines = [
+    {t:'CONNECTING TO MODULE CORE...',c:'#00cfff'},
+    {t:'STABILIZER AIM · LOADED',c:'#00ff88'},
+    {t:'TOUCH SYNC · READY',c:'#00ff88'},
+    {t:'RECOIL CONFIG · INJECTED',c:'#00ff88'},
+    {t:'AIM MATRIX · ONLINE',c:'#00ff88'},
+    {t:'CACHE CLEANER · RUNNING',c:'#00cfff'},
+    {t:'RESPONSE SYNC · ENABLED',c:'#00ff88'},
+    {t:'DRAG BOOST · APPLIED',c:'#00ff88'},
+    {t:'UI HOOK · ACTIVE',c:'#00cfff'},
+    {t:'━━━ SESSION COMPLETE ━━━',c:'#ffffff'},
+  ];
+  let i = 0;
+  const now = () => { const d = new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0'); };
+  const iv = setInterval(() => {
+    if (i < lines.length) {
+      playInjectSound(i, lines.length);
+      const div = document.createElement('div');
+      div.className = 'ml';
+      div.innerHTML = `<span class="ts">[${now()}]</span><span style="color:${lines[i].c}">[+] ${lines[i].t}</span>`;
+      m.appendChild(div); m.scrollTop = m.scrollHeight; i++;
+    } else {
+      clearInterval(iv);
+      playInjectComplete();
     }
-    fill.style.width=p+'%';pct.textContent=Math.floor(p)+'%';
-    const ns=Math.floor(p/11);
-    if(ns!==si&&ns<ffStats.length){si=ns;stat.textContent=ffStats[si];}
-  },90);
+  }, 550);
 }
 
-/* ─── SENSI DATA (165–200) ─── */
-const iPhoneDB=[
-  {key:'iphone se 1st',label:'iPhone SE (1st Gen)',tier:1,tip:'Chipset A9 — sensi rendah optimal di layar 4".'},
-  {key:'iphone 6s',label:'iPhone 6s',tier:1,tip:'Chipset A9 — sensi paling rendah untuk stabilitas.'},
-  {key:'iphone 6s plus',label:'iPhone 6s Plus',tier:1,tip:'Chipset A9 layar 5.5" — sedikit lebih tinggi.'},
-  {key:'iphone se 2nd',label:'iPhone SE (2nd Gen)',tier:2,tip:'Chipset A13 bodi kecil — mid-low sensi cocok.'},
-  {key:'iphone se 3rd',label:'iPhone SE (3rd Gen)',tier:2,tip:'Chipset A15 bodi kecil — mid-low sensi.'},
-  {key:'iphone 7',label:'iPhone 7',tier:2,tip:'Chipset A10 — mid-low sensi stabil.'},
-  {key:'iphone 7 plus',label:'iPhone 7 Plus',tier:2,tip:'Chipset A10 layar 5.5" — mid-low.'},
-  {key:'iphone 8',label:'iPhone 8',tier:3,tip:'Chipset A11 — mid sensi untuk respons solid.'},
-  {key:'iphone 8 plus',label:'iPhone 8 Plus',tier:3,tip:'Chipset A11 layar besar — mid sensi.'},
-  {key:'iphone x',label:'iPhone X',tier:3,tip:'Chipset A11 OLED pertama — mid sensi akurat.'},
-  {key:'iphone xr',label:'iPhone XR',tier:3,tip:'Chipset A12 LCD — mid sensi.'},
-  {key:'iphone xs',label:'iPhone XS',tier:4,tip:'Chipset A12 OLED — mid-high sensi.'},
-  {key:'iphone xs max',label:'iPhone XS Max',tier:4,tip:'Chipset A12 layar besar — mid-high.'},
-  {key:'iphone 11',label:'iPhone 11',tier:4,tip:'Chipset A13 — mid-high sensi headshot konsisten.'},
-  {key:'iphone 11 pro',label:'iPhone 11 Pro',tier:5,tip:'Chipset A13 OLED — high sensi responsif.'},
-  {key:'iphone 11 pro max',label:'iPhone 11 Pro Max',tier:5,tip:'Chipset A13 layar 6.5" — high sensi.'},
-  {key:'iphone 12',label:'iPhone 12',tier:5,tip:'Chipset A14 5G — high sensi stabil.'},
-  {key:'iphone 12 mini',label:'iPhone 12 Mini',tier:5,tip:'Chipset A14 bodi kecil — high sensi grip kuat.'},
-  {key:'iphone 12 pro',label:'iPhone 12 Pro',tier:5,tip:'Chipset A14 OLED — high sensi.'},
-  {key:'iphone 12 pro max',label:'iPhone 12 Pro Max',tier:6,tip:'Chipset A14 layar 6.7" — near max sensi.'},
-  {key:'iphone 13',label:'iPhone 13',tier:6,tip:'Chipset A15 — near max sensi headshot rate tinggi.'},
-  {key:'iphone 13 mini',label:'iPhone 13 Mini',tier:6,tip:'Chipset A15 mini — near max sensi.'},
-  {key:'iphone 13 pro',label:'iPhone 13 Pro',tier:6,tip:'Chipset A15 ProMotion 120Hz — near max super smooth.'},
-  {key:'iphone 13 pro max',label:'iPhone 13 Pro Max',tier:7,tip:'Chipset A15 layar jumbo — sensi max penuh.'},
-  {key:'iphone 14',label:'iPhone 14',tier:6,tip:'Chipset A15 — near max sensi.'},
-  {key:'iphone 14 plus',label:'iPhone 14 Plus',tier:6,tip:'Chipset A15 layar 6.7" — near max.'},
-  {key:'iphone 14 pro',label:'iPhone 14 Pro',tier:7,tip:'Chipset A16 ProMotion 120Hz — sensi max optimal.'},
-  {key:'iphone 14 pro max',label:'iPhone 14 Pro Max',tier:7,tip:'Chipset A16 flagship — sensi max penuh.'},
-  {key:'iphone 15',label:'iPhone 15',tier:7,tip:'Chipset A16 — sensi max generasi baru.'},
-  {key:'iphone 15 plus',label:'iPhone 15 Plus',tier:7,tip:'Chipset A16 layar 6.7" — sensi max.'},
-  {key:'iphone 15 pro',label:'iPhone 15 Pro',tier:7,tip:'Chipset A17 Pro titanium — sensi max sempurna.'},
-  {key:'iphone 15 pro max',label:'iPhone 15 Pro Max',tier:7,tip:'Chipset A17 Pro flagship — sensi max absolut.'},
-  {key:'iphone 16',label:'iPhone 16',tier:7,tip:'Chipset A18 — sensi max generasi terbaru.'},
-  {key:'iphone 16 plus',label:'iPhone 16 Plus',tier:7,tip:'Chipset A18 layar besar — sensi max.'},
-  {key:'iphone 16 pro',label:'iPhone 16 Pro',tier:7,tip:'Chipset A18 Pro 120Hz — sensi max all out.'},
-  {key:'iphone 16 pro max',label:'iPhone 16 Pro Max',tier:7,tip:'Chipset A18 Pro ultimate — sensi max 200 disarankan.'},
-];
-
-// Tier 1→7, range 165–200
-const tierMap={
-  1:{general:165,noScope:168,redDot:166,scope2x:165,scope4x:165,sniper:165},
-  2:{general:168,noScope:172,redDot:170,scope2x:168,scope4x:167,sniper:166},
-  3:{general:173,noScope:177,redDot:175,scope2x:173,scope4x:171,sniper:169},
-  4:{general:178,noScope:183,redDot:180,scope2x:177,scope4x:175,sniper:172},
-  5:{general:184,noScope:189,redDot:186,scope2x:183,scope4x:180,sniper:176},
-  6:{general:190,noScope:195,redDot:192,scope2x:189,scope4x:185,sniper:181},
-  7:{general:196,noScope:200,redDot:198,scope2x:194,scope4x:190,sniper:185},
-};
-
-function filterDevices(val){
-  const sug=document.getElementById('suggestions');
-  if(!val.trim()){sug.style.display='none';return;}
-  const v=val.toLowerCase();
-  const matches=iPhoneDB.filter(d=>d.key.includes(v)||d.label.toLowerCase().includes(v));
-  if(!matches.length){sug.style.display='none';return;}
-  sug.style.display='block';
-  sug.innerHTML=matches.slice(0,8).map(d=>`
-    <div class="sug-item" onclick="selectDevice(${iPhoneDB.indexOf(d)})">
-      <div class="sug-dot"></div>
-      <span class="sug-label">${d.label}</span>
-      <span class="sug-tier">T${d.tier}</span>
-    </div>`).join('');
+// ─── LAUNCH ───────────────────────────────────────────────────────────────────
+let launching = false;
+function launchFF() {
+  if (launching) return; launching = true;
+  if (AC.state === 'suspended') AC.resume();
+  const bar = document.getElementById('launchBar');
+  const pct = document.getElementById('launchPct');
+  let p2 = 0;
+  let lastSoundPct = -1;
+  const iv = setInterval(() => {
+    p2 += 1.2;
+    const rounded = Math.min(Math.round(p2), 100);
+    bar.style.width = rounded + '%';
+    pct.textContent = rounded + '%';
+    if (Math.floor(p2 / 5) > lastSoundPct) {
+      lastSoundPct = Math.floor(p2 / 5);
+      playLaunchSound(p2);
+    }
+    if (p2 >= 100) {
+      clearInterval(iv);
+      pct.textContent = '100% · LAUNCHING...';
+      playLaunchComplete();
+      setTimeout(() => { launching = false; window.location.href = 'freefire://'; }, 500);
+    }
+  }, 45);
 }
-
-function selectDevice(idx){
-  const d=iPhoneDB[idx];const s=tierMap[d.tier];
-  document.getElementById('deviceInput').value=d.label;
-  document.getElementById('suggestions').style.display='none';
-  document.getElementById('sensiDeviceName').textContent='📱 '+d.label.toUpperCase();
-  document.getElementById('sGeneral').textContent=s.general;
-  document.getElementById('sNoScope').textContent=s.noScope;
-  document.getElementById('sRedDot').textContent=s.redDot;
-  document.getElementById('s2x').textContent=s.scope2x;
-  document.getElementById('s4x').textContent=s.scope4x;
-  document.getElementById('sSniper').textContent=s.sniper;
-  document.getElementById('sensiTip').textContent='💡 '+d.tip;
-  document.getElementById('sensiResult').style.display='block';
-}
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.sensi-card'))document.getElementById('suggestions').style.display='none';
-});
 </script>
 </body>
 </html>
